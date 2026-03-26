@@ -1,0 +1,32 @@
+# Dependências
+node_modules/
+
+# Variáveis de ambiente (contêm IPs e segredos locais)
+.env
+.env.local
+.env*.local
+
+# Banco de dados SQLite
+*.db
+*.db-shm
+*.db-wal
+
+# Expo
+.expo/
+dist/
+web-build/
+
+# Logs
+*.log
+npm-debug.*
+
+# macOS
+.DS_Store
+
+# Claude Code (configurações locais)
+.claude/
+
+# Testes — banco temporário
+backend/tests/*.db
+backend/tests/*.db-shm
+backend/tests/*.db-wal
