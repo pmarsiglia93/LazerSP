@@ -7,12 +7,14 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
 
 import { useFavorites } from "../context/FavoritesContext";
 import { useLocation } from "../context/LocationContext";
+import { useVisits } from "../context/VisitsContext";
 import { fetchPlaceById } from "../services/placesService";
 import theme from "../styles/theme";
 
@@ -26,6 +28,12 @@ export default function DetailsScreen({ route, navigation }) {
 
   const { isFavorite, toggleFavorite } = useFavorites();
   const { getDistance } = useLocation();
+  const { isVisited, getVisit, saveVisit, toggleVisited } = useVisits();
+
+  const visited = isVisited(placeId);
+  const visit = getVisit(placeId);
+  const [editingNote, setEditingNote] = useState(false);
+  const [noteText, setNoteText] = useState("");
 
   // Busca dados atualizados da API
   useEffect(() => {
@@ -43,6 +51,12 @@ export default function DetailsScreen({ route, navigation }) {
       navigation.setOptions({ title: place.name });
     }
   }, [place?.name, navigation]);
+
+  // Sincroniza o campo de nota com o que está salvo
+  useEffect(() => {
+    setNoteText(visit?.note || "");
+    setEditingNote(false);
+  }, [visited]);
 
   if (loading && !place) {
     return (
@@ -158,6 +172,108 @@ export default function DetailsScreen({ route, navigation }) {
             {favorite ? "Salvo nos favoritos" : "Adicionar aos favoritos"}
           </Text>
         </TouchableOpacity>
+
+        {/* Seção: Já fui aqui */}
+        <TouchableOpacity
+          style={[styles.visitedButton, visited && styles.visitedButtonActive]}
+          onPress={() => toggleVisited(placeId)}
+        >
+          <Ionicons
+            name={visited ? "checkmark-circle" : "checkmark-circle-outline"}
+            size={20}
+            color={visited ? theme.colors.white : theme.colors.success}
+          />
+          <Text style={[styles.visitedButtonText, visited && styles.visitedButtonTextActive]}>
+            {visited ? "Já fui aqui!" : "Marcar como visitado"}
+          </Text>
+        </TouchableOpacity>
+
+        {visited && (
+          <View style={styles.experienceBox}>
+            <Text style={styles.experienceTitle}>Sua experiência</Text>
+
+            {/* Estrelas */}
+            <View style={styles.starsRow}>
+              {[1, 2, 3, 4, 5].map((star) => (
+                <TouchableOpacity
+                  key={star}
+                  onPress={() => saveVisit(placeId, { rating: star, note: visit?.note || "" })}
+                  hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+                >
+                  <Ionicons
+                    name={star <= (visit?.rating || 0) ? "star" : "star-outline"}
+                    size={32}
+                    color={star <= (visit?.rating || 0) ? theme.colors.secondary : theme.colors.border}
+                  />
+                </TouchableOpacity>
+              ))}
+              {visit?.rating && (
+                <Text style={styles.ratingLabel}>
+                  {["", "Ruim", "Regular", "Bom", "Ótimo", "Excelente"][visit.rating]}
+                </Text>
+              )}
+            </View>
+
+            {/* Nota pessoal */}
+            {editingNote ? (
+              <View style={styles.noteInputWrapper}>
+                <TextInput
+                  style={styles.noteInput}
+                  value={noteText}
+                  onChangeText={setNoteText}
+                  placeholder="Escreva sua impressão sobre o local..."
+                  placeholderTextColor={theme.colors.textLight}
+                  multiline
+                  autoFocus
+                  maxLength={280}
+                />
+                <View style={styles.noteActions}>
+                  <TouchableOpacity
+                    style={styles.noteSaveButton}
+                    onPress={() => {
+                      saveVisit(placeId, { rating: visit?.rating || null, note: noteText });
+                      setEditingNote(false);
+                    }}
+                  >
+                    <Text style={styles.noteSaveText}>Salvar</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => {
+                      setNoteText(visit?.note || "");
+                      setEditingNote(false);
+                    }}
+                  >
+                    <Text style={styles.noteCancelText}>Cancelar</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            ) : (
+              <TouchableOpacity
+                style={styles.notePreview}
+                onPress={() => {
+                  setNoteText(visit?.note || "");
+                  setEditingNote(true);
+                }}
+              >
+                <Ionicons name="create-outline" size={16} color={theme.colors.textLight} />
+                <Text style={[styles.notePreviewText, visit?.note && styles.notePreviewFilled]}>
+                  {visit?.note || "Adicionar uma anotação pessoal..."}
+                </Text>
+              </TouchableOpacity>
+            )}
+
+            {visit?.visitedAt && (
+              <Text style={styles.visitedDate}>
+                Visitado em{" "}
+                {new Date(visit.visitedAt).toLocaleDateString("pt-BR", {
+                  day: "2-digit",
+                  month: "long",
+                  year: "numeric",
+                })}
+              </Text>
+            )}
+          </View>
+        )}
 
         {/* Botões de transporte */}
         <View style={styles.transportRow}>
@@ -488,5 +604,112 @@ const styles = StyleSheet.create({
   retryButtonText: {
     color: theme.colors.white,
     fontWeight: "700",
+  },
+  visitedButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    borderWidth: 2,
+    borderColor: theme.colors.success,
+    paddingVertical: 14,
+    borderRadius: theme.radius.md,
+    marginBottom: 16,
+  },
+  visitedButtonActive: {
+    backgroundColor: theme.colors.success,
+    borderColor: theme.colors.success,
+  },
+  visitedButtonText: {
+    color: theme.colors.success,
+    fontWeight: "700",
+    fontSize: 15,
+  },
+  visitedButtonTextActive: {
+    color: theme.colors.white,
+  },
+  experienceBox: {
+    backgroundColor: theme.colors.white,
+    borderRadius: theme.radius.md,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    padding: theme.spacing.md,
+    marginBottom: 16,
+    gap: 12,
+  },
+  experienceTitle: {
+    fontSize: 15,
+    fontWeight: "700",
+    color: theme.colors.text,
+  },
+  starsRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
+  ratingLabel: {
+    marginLeft: 6,
+    fontSize: 14,
+    fontWeight: "700",
+    color: theme.colors.secondary,
+  },
+  notePreview: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    backgroundColor: theme.colors.background,
+    borderRadius: theme.radius.sm,
+    padding: theme.spacing.sm,
+  },
+  notePreviewText: {
+    flex: 1,
+    fontSize: 14,
+    color: theme.colors.textLight,
+    fontStyle: "italic",
+  },
+  notePreviewFilled: {
+    color: theme.colors.text,
+    fontStyle: "normal",
+  },
+  noteInputWrapper: {
+    gap: 8,
+  },
+  noteInput: {
+    backgroundColor: theme.colors.background,
+    borderRadius: theme.radius.sm,
+    borderWidth: 1,
+    borderColor: theme.colors.primary,
+    padding: theme.spacing.sm,
+    fontSize: 14,
+    color: theme.colors.text,
+    minHeight: 80,
+    textAlignVertical: "top",
+  },
+  noteActions: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 16,
+    justifyContent: "flex-end",
+  },
+  noteSaveButton: {
+    backgroundColor: theme.colors.primary,
+    paddingHorizontal: 20,
+    paddingVertical: 8,
+    borderRadius: theme.radius.sm,
+  },
+  noteSaveText: {
+    color: theme.colors.white,
+    fontWeight: "700",
+    fontSize: 14,
+  },
+  noteCancelText: {
+    color: theme.colors.textLight,
+    fontSize: 14,
+    fontWeight: "600",
+  },
+  visitedDate: {
+    fontSize: 12,
+    color: theme.colors.textLight,
+    textAlign: "right",
   },
 });

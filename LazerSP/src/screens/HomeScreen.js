@@ -16,11 +16,13 @@ import SearchBar from "../components/SearchBar";
 import SkeletonCard from "../components/SkeletonCard";
 import { useFavorites } from "../context/FavoritesContext";
 import { useLocation } from "../context/LocationContext";
+import { useVisits } from "../context/VisitsContext";
 import { usePlaces } from "../hooks/usePlaces";
 import theme from "../styles/theme";
 
 export default function HomeScreen({ navigation }) {
   const { isFavorite, toggleFavorite } = useFavorites();
+  const { isVisited } = useVisits();
   const { loading: locationLoading, error: locationError, openSettings } = useLocation();
   const {
     places,
@@ -117,6 +119,7 @@ export default function HomeScreen({ navigation }) {
             <PlaceCard
               place={item}
               favorite={isFavorite(item.id)}
+              visited={isVisited(item.id)}
               onFavoritePress={() => toggleFavorite(item)}
               onPress={() => navigation.navigate("Details", { placeId: item.id, place: item })}
             />

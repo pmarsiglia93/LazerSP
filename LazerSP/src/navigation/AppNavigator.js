@@ -3,6 +3,7 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { Platform } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import DetailsScreen from "../screens/DetailsScreen";
 import FavoritesScreen from "../screens/FavoritesScreen";
@@ -20,20 +21,12 @@ const TAB_ICONS = {
   Mapa: { focused: "map", outline: "map-outline" },
 };
 
-const TAB_SCREEN_OPTIONS = {
+const TAB_HEADER_OPTIONS = {
   headerStyle: { backgroundColor: theme.colors.primary },
   headerTintColor: theme.colors.white,
   headerTitleStyle: { fontWeight: "bold" },
   tabBarActiveTintColor: theme.colors.primary,
   tabBarInactiveTintColor: theme.colors.textLight,
-  tabBarStyle: {
-    backgroundColor: theme.colors.white,
-    borderTopColor: theme.colors.border,
-    borderTopWidth: 1,
-    height: Platform.OS === "ios" ? 85 : 65,
-    paddingBottom: Platform.OS === "ios" ? 25 : 10,
-    paddingTop: 8,
-  },
   tabBarLabelStyle: {
     fontSize: 12,
     fontWeight: "600",
@@ -41,10 +34,21 @@ const TAB_SCREEN_OPTIONS = {
 };
 
 function MainTabs() {
+  const insets = useSafeAreaInsets();
+  const tabBarStyle = {
+    backgroundColor: theme.colors.white,
+    borderTopColor: theme.colors.border,
+    borderTopWidth: 1,
+    height: (Platform.OS === "ios" ? 60 : 56) + insets.bottom,
+    paddingBottom: insets.bottom + (Platform.OS === "ios" ? 8 : 6),
+    paddingTop: 8,
+  };
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
-        ...TAB_SCREEN_OPTIONS,
+        ...TAB_HEADER_OPTIONS,
+        tabBarStyle,
         tabBarIcon: ({ focused, color, size }) => {
           const icon = TAB_ICONS[route.name];
           return (

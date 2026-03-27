@@ -3,7 +3,7 @@ import { Image } from "expo-image";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import theme from "../styles/theme";
 
-export default function PlaceCard({ place, onPress, onFavoritePress, favorite }) {
+export default function PlaceCard({ place, onPress, onFavoritePress, favorite, visited }) {
   const distanceLabel =
     place.distance !== null && place.distance !== undefined
       ? `${place.distance.toFixed(1)} km`
@@ -28,6 +28,13 @@ export default function PlaceCard({ place, onPress, onFavoritePress, favorite })
       >
         <Text style={styles.statusText}>{place.isOpen ? "Aberto" : "Fechado"}</Text>
       </View>
+
+      {visited && (
+        <View style={styles.visitedBadge}>
+          <Ionicons name="checkmark-circle" size={13} color={theme.colors.white} />
+          <Text style={styles.visitedBadgeText}>Visitado</Text>
+        </View>
+      )}
 
       <View style={styles.content}>
         {/* Nome + Favorito */}
@@ -101,6 +108,23 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
   },
   statusText: {
+    color: theme.colors.white,
+    fontSize: 12,
+    fontWeight: "700",
+  },
+  visitedBadge: {
+    position: "absolute",
+    top: 12,
+    right: 12,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    backgroundColor: "#2A9D8F",
+    borderRadius: 999,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+  },
+  visitedBadgeText: {
     color: theme.colors.white,
     fontSize: 12,
     fontWeight: "700",
