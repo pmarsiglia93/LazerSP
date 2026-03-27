@@ -5,11 +5,13 @@ import {
   RefreshControl,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
 
 import Animated, { FadeInDown } from "react-native-reanimated";
+import { useState } from "react";
 import CategoryFilter from "../components/CategoryFilter";
 import PlaceCard from "../components/PlaceCard";
 import SearchBar from "../components/SearchBar";
@@ -23,7 +25,39 @@ import theme from "../styles/theme";
 export default function HomeScreen({ navigation }) {
   const { isFavorite, toggleFavorite } = useFavorites();
   const { isVisited } = useVisits();
-  const { loading: locationLoading, error: locationError, openSettings } = useLocation();
+  const {
+    loading: locationLoading,
+    error: locationError,
+    openSettings,
+    setManualLocation,
+  } = useLocation();
+
+  const [addressInput, setAddressInput] = useState("");
+  const [addressLoading, setAddressLoading] = useState(false);
+  const [addressError, setAddressError] = useState(null);
+
+  const searchAddress = async () => {
+    if (!addressInput.trim()) return;
+    setAddressLoading(true);
+    setAddressError(null);
+    try {
+      const query = encodeURIComponent(`${addressInput.trim()}, São Paulo, Brasil`);
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/search?q=${query}&format=json&limit=1`,
+        { headers: { "Accept-Language": "pt-BR" } }
+      );
+      const data = await res.json();
+      if (data.length === 0) {
+        setAddressError("Endereço não encontrado. Tente ser mais específico.");
+        return;
+      }
+      setManualLocation({ latitude: parseFloat(data[0].lat), longitude: parseFloat(data[0].lon) });
+    } catch {
+      setAddressError("Erro ao buscar endereço. Verifique sua conexão.");
+    } finally {
+      setAddressLoading(false);
+    }
+  };
   const {
     places,
     categories,
@@ -71,18 +105,38 @@ export default function HomeScreen({ navigation }) {
 
             {!locationLoading && locationError && (
               <View style={[styles.infoBox, styles.infoBoxWarning]}>
-                <Ionicons
-                  name="location-outline"
-                  size={18}
-                  color={theme.colors.danger}
-                />
-                <Text style={styles.errorText}>{locationError}</Text>
-                <TouchableOpacity
-                  style={styles.settingsButton}
-                  onPress={openSettings}
-                >
-                  <Text style={styles.settingsButtonText}>Ativar</Text>
-                </TouchableOpacity>
+                <View style={styles.locationErrorRow}>
+                  <Ionicons name="location-outline" size={18} color={theme.colors.danger} />
+                  <Text style={styles.errorText}>Localização desativada</Text>
+                  <TouchableOpacity style={styles.settingsButton} onPress={openSettings}>
+                    <Text style={styles.settingsButtonText}>Ativar GPS</Text>
+                  </TouchableOpacity>
+                </View>
+                <Text style={styles.orText}>ou informe seu endereço para ver os locais mais próximos:</Text>
+                <View style={styles.addressRow}>
+                  <TextInput
+                    style={styles.addressInput}
+                    value={addressInput}
+                    onChangeText={setAddressInput}
+                    placeholder="Ex: Pinheiros, São Paulo..."
+                    placeholderTextColor={theme.colors.textLight}
+                    returnKeyType="search"
+                    onSubmitEditing={searchAddress}
+                  />
+                  <TouchableOpacity
+                    style={styles.addressButton}
+                    onPress={searchAddress}
+                    disabled={addressLoading}
+                  >
+                    {addressLoading
+                      ? <ActivityIndicator size="small" color={theme.colors.white} />
+                      : <Ionicons name="search" size={18} color={theme.colors.white} />
+                    }
+                  </TouchableOpacity>
+                </View>
+                {addressError && (
+                  <Text style={styles.addressErrorText}>{addressError}</Text>
+                )}
               </View>
             )}
 
@@ -240,6 +294,14 @@ const styles = StyleSheet.create({
   infoBoxWarning: {
     borderColor: theme.colors.danger,
     backgroundColor: "#FFF5F5",
+    flexDirection: "column",
+    alignItems: "stretch",
+    gap: 10,
+  },
+  locationErrorRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
   },
   infoText: {
     color: theme.colors.text,
@@ -251,12 +313,41 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     flex: 1,
   },
+  orText: {
+    fontSize: 13,
+    color: theme.colors.textLight,
+  },
+  addressRow: {
+    flexDirection: "row",
+    gap: 8,
+  },
+  addressInput: {
+    flex: 1,
+    backgroundColor: theme.colors.white,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    borderRadius: theme.radius.sm,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    fontSize: 14,
+    color: theme.colors.text,
+  },
+  addressButton: {
+    backgroundColor: theme.colors.primary,
+    borderRadius: theme.radius.sm,
+    paddingHorizontal: 14,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  addressErrorText: {
+    fontSize: 12,
+    color: theme.colors.danger,
+  },
   settingsButton: {
     backgroundColor: theme.colors.danger,
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: theme.radius.sm,
-    marginLeft: 4,
   },
   settingsButtonText: {
     color: theme.colors.white,

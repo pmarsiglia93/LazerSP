@@ -12,7 +12,7 @@ export function usePlaces() {
   const [selectedCategory, setSelectedCategory] = useState("Todos");
   const [onlyFree, setOnlyFree] = useState(false);
 
-  const { getDistance } = useLocation();
+  const { getDistance, resolved: locationResolved } = useLocation();
   const debounceRef = useRef(null);
 
   // Carrega categorias uma vez
@@ -56,14 +56,15 @@ export function usePlaces() {
     [getDistance]
   );
 
-  // Debounce na busca por texto, categoria e filtro de preço
+  // Aguarda localização resolver antes de carregar (evita reorganização)
   useEffect(() => {
+    if (!locationResolved) return;
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
       loadPlaces(search, selectedCategory, onlyFree);
     }, 400);
     return () => clearTimeout(debounceRef.current);
-  }, [search, selectedCategory, onlyFree, loadPlaces]);
+  }, [search, selectedCategory, onlyFree, loadPlaces, locationResolved]);
 
   // Atualiza os lugares quando o app volta ao primeiro plano
   useEffect(() => {

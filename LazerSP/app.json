@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "LazerSP",
-    "slug": "LazerSP",
+    "slug": "lazersp",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -13,6 +13,11 @@
     },
     "android": {
       "package": "com.lazersp.app",
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyAwJKIs0vROMdRc5GJtLs2oB66VaNK6y38"
+        }
+      },
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -34,6 +39,12 @@
           "backgroundColor": "#1E3A5F"
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "9a92454a-32a9-4a5e-afe4-10b5725dae51"
+      }
+    },
+    "owner": "pmarsiglia93s-organization"
   }
 }

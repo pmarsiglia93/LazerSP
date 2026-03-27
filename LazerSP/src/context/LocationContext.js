@@ -15,6 +15,8 @@ export function LocationProvider({ children }) {
   const [permissionStatus, setPermissionStatus] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  // true quando a tentativa de obter localização terminou (com ou sem sucesso)
+  const [resolved, setResolved] = useState(false);
 
   const requestLocation = useCallback(async () => {
     setLoading(true);
@@ -37,7 +39,15 @@ export function LocationProvider({ children }) {
       console.error("[LocationContext]", err);
     } finally {
       setLoading(false);
+      setResolved(true);
     }
+  }, []);
+
+  // Permite definir localização manualmente (ex: via busca de endereço)
+  const setManualLocation = useCallback((coords) => {
+    setLocation(coords);
+    setError(null);
+    setResolved(true);
   }, []);
 
   const openSettings = useCallback(() => {
@@ -75,8 +85,10 @@ export function LocationProvider({ children }) {
         permissionStatus,
         loading,
         error,
+        resolved,
         getDistance,
         requestLocation,
+        setManualLocation,
         openSettings,
       }}
     >

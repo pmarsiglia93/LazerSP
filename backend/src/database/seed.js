@@ -79,7 +79,7 @@ const places = [
     is_open: 0,
     latitude: -23.5342,
     longitude: -46.6337,
-    instagram: "pinacotecase",
+    instagram: "pinacotecasp",
     tags: ["arte brasileira", "museu", "história", "cultura", "clássico"],
   },
   {
@@ -457,7 +457,7 @@ const places = [
     is_open: 0,
     latitude: -23.5267,
     longitude: -46.6630,
-    instagram: "dedgeclubsp",
+    instagram: "dedge",
     tags: ["balada", "eletrônica", "DJ", "Barra Funda", "noite"],
   },
   {
