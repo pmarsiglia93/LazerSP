@@ -35,11 +35,14 @@ export default function HomeScreen({ navigation }) {
   const [addressInput, setAddressInput] = useState("");
   const [addressLoading, setAddressLoading] = useState(false);
   const [addressError, setAddressError] = useState(null);
+  // Resultado encontrado aguardando confirmação: { label, lat, lon }
+  const [foundAddress, setFoundAddress] = useState(null);
 
   const searchAddress = async () => {
     if (!addressInput.trim()) return;
     setAddressLoading(true);
     setAddressError(null);
+    setFoundAddress(null);
     try {
       const query = encodeURIComponent(`${addressInput.trim()}, São Paulo, Brasil`);
       const res = await fetch(
@@ -51,12 +54,28 @@ export default function HomeScreen({ navigation }) {
         setAddressError("Endereço não encontrado. Tente ser mais específico.");
         return;
       }
-      setManualLocation({ latitude: parseFloat(data[0].lat), longitude: parseFloat(data[0].lon) });
+      // Mostra o endereço para confirmação antes de aplicar
+      setFoundAddress({
+        label: data[0].display_name,
+        lat: parseFloat(data[0].lat),
+        lon: parseFloat(data[0].lon),
+      });
     } catch {
       setAddressError("Erro ao buscar endereço. Verifique sua conexão.");
     } finally {
       setAddressLoading(false);
     }
+  };
+
+  const confirmAddress = () => {
+    if (!foundAddress) return;
+    setManualLocation({ latitude: foundAddress.lat, longitude: foundAddress.lon });
+    setFoundAddress(null);
+  };
+
+  const rejectAddress = () => {
+    setFoundAddress(null);
+    setAddressError("Endereço incorreto. Tente um termo mais específico.");
   };
   const {
     places,
@@ -136,6 +155,34 @@ export default function HomeScreen({ navigation }) {
                 </View>
                 {addressError && (
                   <Text style={styles.addressErrorText}>{addressError}</Text>
+                )}
+
+                {foundAddress && (
+                  <View style={styles.foundAddressBox}>
+                    <View style={styles.foundAddressHeader}>
+                      <Ionicons name="location" size={15} color={theme.colors.success} />
+                      <Text style={styles.foundAddressTitle}>Endereço encontrado:</Text>
+                    </View>
+                    <Text style={styles.foundAddressLabel} numberOfLines={2}>
+                      {foundAddress.label}
+                    </Text>
+                    <View style={styles.foundAddressActions}>
+                      <TouchableOpacity
+                        style={styles.confirmButton}
+                        onPress={confirmAddress}
+                      >
+                        <Ionicons name="checkmark" size={15} color={theme.colors.white} />
+                        <Text style={styles.confirmButtonText}>Confirmar</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={styles.rejectButton}
+                        onPress={rejectAddress}
+                      >
+                        <Ionicons name="pencil" size={15} color={theme.colors.primary} />
+                        <Text style={styles.rejectButtonText}>Editar</Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
                 )}
               </View>
             )}
@@ -342,6 +389,65 @@ const styles = StyleSheet.create({
   addressErrorText: {
     fontSize: 12,
     color: theme.colors.danger,
+  },
+  foundAddressBox: {
+    backgroundColor: "#F0FBF9",
+    borderRadius: theme.radius.sm,
+    borderWidth: 1,
+    borderColor: theme.colors.success,
+    padding: theme.spacing.sm,
+    gap: 8,
+  },
+  foundAddressHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
+  foundAddressTitle: {
+    fontSize: 13,
+    fontWeight: "700",
+    color: theme.colors.success,
+  },
+  foundAddressLabel: {
+    fontSize: 13,
+    color: theme.colors.text,
+    lineHeight: 18,
+  },
+  foundAddressActions: {
+    flexDirection: "row",
+    gap: 8,
+  },
+  confirmButton: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+    backgroundColor: theme.colors.success,
+    borderRadius: theme.radius.sm,
+    paddingVertical: 8,
+  },
+  confirmButtonText: {
+    color: theme.colors.white,
+    fontWeight: "700",
+    fontSize: 13,
+  },
+  rejectButton: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+    backgroundColor: theme.colors.white,
+    borderRadius: theme.radius.sm,
+    borderWidth: 1,
+    borderColor: theme.colors.primary,
+    paddingVertical: 8,
+  },
+  rejectButtonText: {
+    color: theme.colors.primary,
+    fontWeight: "700",
+    fontSize: 13,
   },
   settingsButton: {
     backgroundColor: theme.colors.danger,

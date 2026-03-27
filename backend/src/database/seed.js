@@ -16,7 +16,7 @@ const places = [
     is_open: 1,
     latitude: -23.5874,
     longitude: -46.6576,
-    instagram: "parqueibirapuera",
+    instagram: "ibirapueraoficial",
     tags: ["parque", "natureza", "esporte", "família", "gratuito"],
   },
   {
@@ -63,7 +63,7 @@ const places = [
     is_open: 1,
     latitude: -23.5613,
     longitude: -46.6558,
-    instagram: "masp.oficial",
+    instagram: "masp",
     tags: ["arte", "cultura", "museu", "exposição", "história"],
   },
   {
@@ -111,7 +111,7 @@ const places = [
     is_open: 1,
     latitude: -23.5872,
     longitude: -46.6565,
-    instagram: "mam.sp",
+    instagram: "mamsaopaulo",
     tags: ["arte moderna", "contemporâneo", "Ibirapuera", "exposição", "cultura"],
   },
   {
@@ -235,7 +235,7 @@ const places = [
     is_open: 1,
     latitude: -23.5642,
     longitude: -46.6524,
-    instagram: "japanhouse_sp",
+    instagram: "japanhousesp",
     tags: ["japão", "cultura", "design", "exposição", "Paulista"],
   },
   {
@@ -251,7 +251,7 @@ const places = [
     is_open: 1,
     latitude: -23.5437,
     longitude: -46.6347,
-    instagram: "ccbb.sp",
+    instagram: "ccbbsp",
     tags: ["cultura", "exposição", "teatro", "cinema", "centro"],
   },
   {
@@ -300,7 +300,7 @@ const places = [
     is_open: 1,
     latitude: -23.5421,
     longitude: -46.6396,
-    instagram: "barbrahmabr",
+    instagram: "barbrahma",
     tags: ["bar", "tradição", "chopp", "centro", "histórico", "art déco"],
   },
   {
@@ -331,7 +331,7 @@ const places = [
     is_open: 1,
     latitude: -23.5543,
     longitude: -46.6892,
-    instagram: "astorbar",
+    instagram: "barastor",
     tags: ["bar", "coquetelaria", "Vila Madalena", "drinks", "descolado"],
   },
   {
@@ -347,7 +347,7 @@ const places = [
     is_open: 1,
     latitude: -23.5463,
     longitude: -46.7029,
-    instagram: "emporioaltodepinheiros",
+    instagram: null,
     tags: ["cerveja artesanal", "craft beer", "Pinheiros", "petisco", "bar"],
   },
   {
@@ -363,7 +363,7 @@ const places = [
     is_open: 1,
     latitude: -23.5665,
     longitude: -46.6960,
-    instagram: "piraja_bar",
+    instagram: "barpiraja",
     tags: ["boteco", "bar", "Pinheiros", "almôndega", "chopp"],
   },
   {
@@ -457,7 +457,7 @@ const places = [
     is_open: 0,
     latitude: -23.5267,
     longitude: -46.6630,
-    instagram: "dedge",
+    instagram: "dedgesp",
     tags: ["balada", "eletrônica", "DJ", "Barra Funda", "noite"],
   },
   {
@@ -473,7 +473,7 @@ const places = [
     is_open: 0,
     latitude: -23.5598,
     longitude: -46.6330,
-    instagram: "cinejoia",
+    instagram: "cine_joia",
     tags: ["balada", "show", "Liberdade", "cultural", "noite"],
   },
   {
@@ -505,7 +505,7 @@ const places = [
     is_open: 0,
     latitude: -23.5290,
     longitude: -46.7000,
-    instagram: "theweeksp",
+    instagram: "theweekbar",
     tags: ["balada", "LGBTQIA+", "dança", "megaclub", "internacional"],
   },
   {
@@ -536,7 +536,7 @@ const places = [
     is_open: 0,
     latitude: -23.5543,
     longitude: -46.6926,
-    instagram: "casacomigo_sp",
+    instagram: null,
     tags: ["balada", "bar", "Vila Madalena", "DJ", "dança"],
   },
   {
@@ -584,7 +584,7 @@ const places = [
     is_open: 1,
     latitude: -23.5561,
     longitude: -46.6404,
-    instagram: "famigliamancini",
+    instagram: "famigliamancini_oficial",
     tags: ["italiano", "massa", "tradicional", "família", "Bela Vista"],
   },
   {
@@ -600,7 +600,7 @@ const places = [
     is_open: 1,
     latitude: -23.4921,
     longitude: -46.6272,
-    instagram: "restaurantemocoto",
+    instagram: "mocotorestaurante",
     tags: ["nordestino", "premiado", "brasileiro", "caldo", "Rodrigo Oliveira"],
   },
   {
@@ -616,7 +616,7 @@ const places = [
     is_open: 1,
     latitude: -23.5638,
     longitude: -46.6660,
-    instagram: "mani_restaurante",
+    instagram: "manimanioca",
     tags: ["fine dining", "brasileiro", "premiado", "Helena Rizzo", "Jardins"],
   },
   {
