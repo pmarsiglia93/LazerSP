@@ -47,8 +47,17 @@ export default function HomeScreen({ navigation }) {
       const query = encodeURIComponent(`${addressInput.trim()}, São Paulo, Brasil`);
       const res = await fetch(
         `https://nominatim.openstreetmap.org/search?q=${query}&format=json&limit=1`,
-        { headers: { "Accept-Language": "pt-BR" } }
+        {
+          headers: {
+            "Accept-Language": "pt-BR",
+            "User-Agent": "LazerSP/1.0 (TCC - Guia de Lazer SP)",
+          },
+        }
       );
+      if (!res.ok) {
+        setAddressError("Erro ao buscar endereço. Tente novamente.");
+        return;
+      }
       const data = await res.json();
       if (data.length === 0) {
         setAddressError("Endereço não encontrado. Tente ser mais específico.");

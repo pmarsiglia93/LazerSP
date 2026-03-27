@@ -4,10 +4,12 @@ import { FlatList, StyleSheet, Text, View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import PlaceCard from "../components/PlaceCard";
 import { useFavorites } from "../context/FavoritesContext";
+import { useVisits } from "../context/VisitsContext";
 import theme from "../styles/theme";
 
 export default function FavoritesScreen({ navigation }) {
   const { favorites, isFavorite, toggleFavorite } = useFavorites();
+  const { isVisited } = useVisits();
 
   return (
     <View style={styles.container}>
@@ -20,6 +22,7 @@ export default function FavoritesScreen({ navigation }) {
             <PlaceCard
               place={item}
               favorite={isFavorite(item.id)}
+              visited={isVisited(item.id)}
               onFavoritePress={() => toggleFavorite(item)}
               onPress={() =>
                 navigation.navigate("Details", { placeId: item.id, place: item })
