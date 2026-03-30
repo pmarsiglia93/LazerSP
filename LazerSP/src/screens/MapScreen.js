@@ -14,7 +14,7 @@ import { fetchPlaces } from "../services/placesService";
 import theme from "../styles/theme";
 
 export default function MapScreen({ navigation }) {
-  const { location, loading: locationLoading, error: locationError, getDistance } = useLocation();
+  const { location, error: locationError, getDistance } = useLocation();
   const [places, setPlaces] = useState([]);
   const [loadingPlaces, setLoadingPlaces] = useState(true);
 
@@ -42,7 +42,7 @@ export default function MapScreen({ navigation }) {
     };
   }, [location]);
 
-  const isLoading = locationLoading || loadingPlaces;
+  const isLoading = loadingPlaces;
 
   return (
     <View style={styles.container}>
@@ -58,7 +58,7 @@ export default function MapScreen({ navigation }) {
           showsUserLocation
           showsMyLocationButton
         >
-          {places.map((place) => {
+          {places.filter((place) => place.latitude != null && place.longitude != null).map((place) => {
             const distance = getDistance(place.latitude, place.longitude);
             const distanceLabel = distance !== null ? `${distance.toFixed(1)} km` : "";
             return (

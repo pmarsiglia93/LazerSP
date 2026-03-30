@@ -55,7 +55,7 @@ const places = [
     category: "Museus",
     address: "Av. Paulista, 1578 - Bela Vista, São Paulo",
     description: "O Museu de Arte de São Paulo Assis Chateaubriand é considerado um dos mais importantes museus de arte do mundo. Seu acervo conta com mais de 10 mil obras, entre pinturas, esculturas, fotografias e objetos de design.",
-    image_url: "https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=800&q=80",
+    image_url: "https://images.unsplash.com/photo-JO2nwr5TDKw?w=800&q=80",
     rating: 4.8,
     opening_hours: "Ter-Dom 10:00 - 18:00",
     price_level: "R$ 60,00",

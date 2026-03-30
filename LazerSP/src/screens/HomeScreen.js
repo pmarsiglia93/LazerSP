@@ -100,7 +100,7 @@ export default function HomeScreen({ navigation }) {
     refresh,
   } = usePlaces();
 
-  const isFirstLoad = loading && places.length === 0;
+  const isFirstLoad = locationLoading || (loading && places.length === 0);
 
   return (
     <View style={styles.container}>
