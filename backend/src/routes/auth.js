@@ -8,7 +8,7 @@ router.post("/login", (req, res) => {
   if (!username || !password) {
     return res.status(400).json({ success: false, error: "username e password são obrigatórios" });
   }
-  if (username !== process.env.ADMIN_USER || password !== process.env.ADMIN_PASSWORD) {
+  if (username.trim() !== (process.env.ADMIN_USER || "").trim() || password.trim() !== (process.env.ADMIN_PASSWORD || "").trim()) {
     return res.status(401).json({ success: false, error: "Credenciais inválidas" });
   }
   const token = jwt.sign({ username }, process.env.JWT_SECRET, { expiresIn: "24h" });
