@@ -10,6 +10,7 @@ export default defineConfig({
   },
   server: {
     port: 5173,
+    host: true,
     proxy: {
       '/api': {
         target: 'https://lazersp-production.up.railway.app',

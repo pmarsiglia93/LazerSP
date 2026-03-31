@@ -1,0 +1,97 @@
+{
+  "splash": {
+    "tagline": "Your leisure guide in São Paulo",
+    "feature_nearby": "Places near you",
+    "feature_rated": "Best rated in the city",
+    "feature_favorites": "Save your favorites",
+    "explore_button": "Explore now",
+    "footer": "São Paulo · Brazil"
+  },
+  "home": {
+    "title": "Find leisure near you",
+    "subtitle": "Explore the closest tourist spots and cultural spaces.",
+    "getting_location": "Getting your location...",
+    "location_disabled": "Location disabled",
+    "enable_gps": "Enable GPS",
+    "address_prompt": "or enter your address to see nearby places:",
+    "address_placeholder": "e.g. Pinheiros, São Paulo...",
+    "address_error_http": "Error searching address. Please try again.",
+    "address_error_notfound": "Address not found. Try to be more specific.",
+    "address_error_wrong": "Wrong address. Try a more specific term.",
+    "address_error_connection": "Error searching address. Check your connection.",
+    "address_found": "Address found:",
+    "confirm": "Confirm",
+    "edit": "Edit",
+    "only_free": "Free only",
+    "places_found_one": "{{count}} place found",
+    "places_found_other": "{{count}} places found",
+    "loading": "Loading...",
+    "no_connection": "No connection",
+    "retry": "Try again",
+    "empty": "No places found for this search."
+  },
+  "favorites": {
+    "title": "Your favorites",
+    "count_one": "{{count}} saved place",
+    "count_other": "{{count}} saved places",
+    "empty_title": "No favorites yet",
+    "empty_text": "Explore places and tap the heart to save your favorites."
+  },
+  "details": {
+    "open": "Open now",
+    "closed": "Closed",
+    "from_you": "from you",
+    "rating": "Rating",
+    "hours": "Hours",
+    "price": "Price",
+    "save_favorite": "Add to favorites",
+    "saved_favorite": "Saved to favorites",
+    "mark_visited": "Mark as visited",
+    "visited": "Been here!",
+    "your_experience": "Your experience",
+    "rating_1": "Poor",
+    "rating_2": "Fair",
+    "rating_3": "Good",
+    "rating_4": "Great",
+    "rating_5": "Excellent",
+    "note_placeholder": "Write your impression of the place...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "note_prompt": "Add a personal note...",
+    "visited_at": "Visited on {{date}}",
+    "directions": "Get directions",
+    "uber": "Get Uber",
+    "instagram": "View on Instagram",
+    "address": "Address",
+    "about": "About this place",
+    "tags": "Tags",
+    "back": "Back",
+    "load_error": "Could not load details."
+  },
+  "map": {
+    "loading": "Loading map...",
+    "title": "Map of nearby places",
+    "subtitle": "Tap a marker then tap \"More info\" to see the place."
+  },
+  "nav": {
+    "explore": "Explore",
+    "favorites": "Favorites",
+    "map": "Map",
+    "details": "Details",
+    "app_title": "LazerSP"
+  },
+  "search": {
+    "placeholder": "Search parks, museums, markets..."
+  },
+  "categories": {
+    "Todos": "All",
+    "Parques": "Parks",
+    "Museus": "Museums",
+    "Mercados": "Markets",
+    "Centros Culturais": "Cultural Centers",
+    "Pontos Turísticos": "Tourist Spots",
+    "Bares": "Bars",
+    "Restaurantes": "Restaurants",
+    "Baladas": "Nightclubs"
+  }
+}

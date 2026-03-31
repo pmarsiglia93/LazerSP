@@ -1,9 +1,11 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useRef } from "react";
 import { Animated, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import theme from "../styles/theme";
 
 export default function SplashScreen({ navigation }) {
+  const { t } = useTranslation();
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(30)).current;
 
@@ -24,7 +26,6 @@ export default function SplashScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
-      {/* Círculos decorativos de fundo */}
       <View style={styles.circle1} />
       <View style={styles.circle2} />
 
@@ -34,40 +35,36 @@ export default function SplashScreen({ navigation }) {
           { opacity: fadeAnim, transform: [{ translateY: slideAnim }] },
         ]}
       >
-        {/* Ícone */}
         <View style={styles.iconContainer}>
           <Ionicons name="map" size={52} color={theme.colors.secondary} />
         </View>
 
-        {/* Logo */}
         <Text style={styles.logo}>LazerSP</Text>
-        <Text style={styles.tagline}>Seu guia de lazer em São Paulo</Text>
+        <Text style={styles.tagline}>{t("splash.tagline")}</Text>
 
-        {/* Features */}
         <View style={styles.features}>
           {[
-            { icon: "location-outline", text: "Lugares próximos a você" },
-            { icon: "star-outline", text: "Melhores avaliados da cidade" },
-            { icon: "heart-outline", text: "Salve seus favoritos" },
-          ].map(({ icon, text }) => (
-            <View key={text} style={styles.featureRow}>
+            { icon: "location-outline", key: "splash.feature_nearby" },
+            { icon: "star-outline", key: "splash.feature_rated" },
+            { icon: "heart-outline", key: "splash.feature_favorites" },
+          ].map(({ icon, key }) => (
+            <View key={key} style={styles.featureRow}>
               <Ionicons name={icon} size={18} color={theme.colors.secondary} />
-              <Text style={styles.featureText}>{text}</Text>
+              <Text style={styles.featureText}>{t(key)}</Text>
             </View>
           ))}
         </View>
 
-        {/* Botão */}
         <TouchableOpacity
           style={styles.button}
           onPress={() => navigation.replace("Main")}
           activeOpacity={0.85}
         >
-          <Text style={styles.buttonText}>Explorar agora</Text>
+          <Text style={styles.buttonText}>{t("splash.explore_button")}</Text>
           <Ionicons name="arrow-forward" size={18} color={theme.colors.text} />
         </TouchableOpacity>
 
-        <Text style={styles.footer}>São Paulo · Brasil</Text>
+        <Text style={styles.footer}>{t("splash.footer")}</Text>
       </Animated.View>
     </View>
   );

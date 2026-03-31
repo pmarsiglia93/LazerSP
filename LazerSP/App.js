@@ -1,3 +1,4 @@
+import "./src/i18n";
 import { FavoritesProvider } from "./src/context/FavoritesContext";
 import { LocationProvider } from "./src/context/LocationContext";
 import { VisitsProvider } from "./src/context/VisitsContext";

@@ -1,8 +1,10 @@
 import { Ionicons } from "@expo/vector-icons";
 import { StyleSheet, TextInput, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import theme from "../styles/theme";
 
 export default function SearchBar({ value, onChangeText }) {
+  const { t } = useTranslation();
   return (
     <View style={styles.container}>
       <Ionicons
@@ -12,7 +14,7 @@ export default function SearchBar({ value, onChangeText }) {
         style={styles.icon}
       />
       <TextInput
-        placeholder="Buscar parques, museus, mercados..."
+        placeholder={t("search.placeholder")}
         value={value}
         onChangeText={onChangeText}
         style={styles.input}

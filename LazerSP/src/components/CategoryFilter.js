@@ -1,4 +1,5 @@
 import { ScrollView, StyleSheet, Text, TouchableOpacity } from "react-native";
+import { useTranslation } from "react-i18next";
 import theme from "../styles/theme";
 
 const CATEGORY_ICONS = {
@@ -14,6 +15,7 @@ const CATEGORY_ICONS = {
 };
 
 export default function CategoryFilter({ categories, selected, onSelect }) {
+  const { t } = useTranslation();
   return (
     <ScrollView
       horizontal
@@ -33,7 +35,7 @@ export default function CategoryFilter({ categories, selected, onSelect }) {
           >
             <Text style={styles.icon}>{icon}</Text>
             <Text style={[styles.text, active && styles.textActive]}>
-              {category}
+              {t(`categories.${category}`, { defaultValue: category })}
             </Text>
           </TouchableOpacity>
         );

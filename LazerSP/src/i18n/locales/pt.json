@@ -1,0 +1,97 @@
+{
+  "splash": {
+    "tagline": "Seu guia de lazer em São Paulo",
+    "feature_nearby": "Lugares próximos a você",
+    "feature_rated": "Melhores avaliados da cidade",
+    "feature_favorites": "Salve seus favoritos",
+    "explore_button": "Explorar agora",
+    "footer": "São Paulo · Brasil"
+  },
+  "home": {
+    "title": "Encontre lazer perto de você",
+    "subtitle": "Explore os pontos turísticos e espaços culturais mais próximos.",
+    "getting_location": "Obtendo sua localização...",
+    "location_disabled": "Localização desativada",
+    "enable_gps": "Ativar GPS",
+    "address_prompt": "ou informe seu endereço para ver os locais mais próximos:",
+    "address_placeholder": "Ex: Pinheiros, São Paulo...",
+    "address_error_http": "Erro ao buscar endereço. Tente novamente.",
+    "address_error_notfound": "Endereço não encontrado. Tente ser mais específico.",
+    "address_error_wrong": "Endereço incorreto. Tente um termo mais específico.",
+    "address_error_connection": "Erro ao buscar endereço. Verifique sua conexão.",
+    "address_found": "Endereço encontrado:",
+    "confirm": "Confirmar",
+    "edit": "Editar",
+    "only_free": "Apenas gratuitos",
+    "places_found_one": "{{count}} lugar encontrado",
+    "places_found_other": "{{count}} lugares encontrados",
+    "loading": "Carregando...",
+    "no_connection": "Sem conexão",
+    "retry": "Tentar novamente",
+    "empty": "Nenhum local encontrado para essa busca."
+  },
+  "favorites": {
+    "title": "Seus favoritos",
+    "count_one": "{{count}} lugar salvo",
+    "count_other": "{{count}} lugares salvos",
+    "empty_title": "Nenhum favorito ainda",
+    "empty_text": "Explore os lugares e toque no coração para salvar seus favoritos."
+  },
+  "details": {
+    "open": "Aberto agora",
+    "closed": "Fechado",
+    "from_you": "de você",
+    "rating": "Avaliação",
+    "hours": "Horário",
+    "price": "Preço",
+    "save_favorite": "Adicionar aos favoritos",
+    "saved_favorite": "Salvo nos favoritos",
+    "mark_visited": "Marcar como visitado",
+    "visited": "Já fui aqui!",
+    "your_experience": "Sua experiência",
+    "rating_1": "Ruim",
+    "rating_2": "Regular",
+    "rating_3": "Bom",
+    "rating_4": "Ótimo",
+    "rating_5": "Excelente",
+    "note_placeholder": "Escreva sua impressão sobre o local...",
+    "save": "Salvar",
+    "cancel": "Cancelar",
+    "note_prompt": "Adicionar uma anotação pessoal...",
+    "visited_at": "Visitado em {{date}}",
+    "directions": "Como chegar",
+    "uber": "Ir de Uber",
+    "instagram": "Ver no Instagram",
+    "address": "Endereço",
+    "about": "Sobre o local",
+    "tags": "Tags",
+    "back": "Voltar",
+    "load_error": "Não foi possível carregar os detalhes."
+  },
+  "map": {
+    "loading": "Carregando mapa...",
+    "title": "Mapa de pontos próximos",
+    "subtitle": "Toque em um marcador e depois em \"Saiba mais\" para ver o local."
+  },
+  "nav": {
+    "explore": "Explorar",
+    "favorites": "Favoritos",
+    "map": "Mapa",
+    "details": "Detalhes",
+    "app_title": "LazerSP"
+  },
+  "search": {
+    "placeholder": "Buscar parques, museus, mercados..."
+  },
+  "categories": {
+    "Todos": "Todos",
+    "Parques": "Parques",
+    "Museus": "Museus",
+    "Mercados": "Mercados",
+    "Centros Culturais": "Centros Culturais",
+    "Pontos Turísticos": "Pontos Turísticos",
+    "Bares": "Bares",
+    "Restaurantes": "Restaurantes",
+    "Baladas": "Baladas"
+  }
+}

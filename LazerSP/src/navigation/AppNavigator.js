@@ -2,8 +2,10 @@ import { Ionicons } from "@expo/vector-icons";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { Platform } from "react-native";
+import { Platform, TouchableOpacity } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useTranslation } from "react-i18next";
+import i18n from "../i18n";
 
 import DetailsScreen from "../screens/DetailsScreen";
 import FavoritesScreen from "../screens/FavoritesScreen";
@@ -21,20 +23,31 @@ const TAB_ICONS = {
   Mapa: { focused: "map", outline: "map-outline" },
 };
 
-const TAB_HEADER_OPTIONS = {
-  headerStyle: { backgroundColor: theme.colors.primary },
-  headerTintColor: theme.colors.white,
-  headerTitleStyle: { fontWeight: "bold" },
-  tabBarActiveTintColor: theme.colors.primary,
-  tabBarInactiveTintColor: theme.colors.textLight,
-  tabBarLabelStyle: {
-    fontSize: 12,
-    fontWeight: "600",
-  },
-};
+const LANGUAGES = [
+  { code: "pt", flag: "🇧🇷" },
+  { code: "en", flag: "🇬🇧" },
+  { code: "es", flag: "🇪🇸" },
+];
+
+function LanguageButton() {
+  const current = LANGUAGES.find((l) => l.code === i18n.language) || LANGUAGES[0];
+  const nextIndex = (LANGUAGES.indexOf(current) + 1) % LANGUAGES.length;
+
+  return (
+    <TouchableOpacity
+      onPress={() => i18n.changeLanguage(LANGUAGES[nextIndex].code)}
+      style={{ marginRight: 16, padding: 4 }}
+      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+    >
+      <Ionicons name="globe-outline" size={22} color={theme.colors.white} />
+    </TouchableOpacity>
+  );
+}
 
 function MainTabs() {
   const insets = useSafeAreaInsets();
+  const { t } = useTranslation();
+
   const tabBarStyle = {
     backgroundColor: theme.colors.white,
     borderTopColor: theme.colors.border,
@@ -47,7 +60,13 @@ function MainTabs() {
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
-        ...TAB_HEADER_OPTIONS,
+        headerStyle: { backgroundColor: theme.colors.primary },
+        headerTintColor: theme.colors.white,
+        headerTitleStyle: { fontWeight: "bold" },
+        headerRight: () => <LanguageButton />,
+        tabBarActiveTintColor: theme.colors.primary,
+        tabBarInactiveTintColor: theme.colors.textLight,
+        tabBarLabelStyle: { fontSize: 12, fontWeight: "600" },
         tabBarStyle,
         tabBarIcon: ({ focused, color, size }) => {
           const icon = TAB_ICONS[route.name];
@@ -64,19 +83,19 @@ function MainTabs() {
       <Tab.Screen
         name="Explorar"
         component={HomeScreen}
-        options={{ title: "LazerSP", tabBarLabel: "Explorar" }}
+        options={{ title: t("nav.app_title"), tabBarLabel: t("nav.explore") }}
       />
       <Tab.Screen
         name="Favoritos"
         component={FavoritesScreen}
-        options={{ title: "Favoritos", tabBarLabel: "Favoritos" }}
+        options={{ title: t("nav.favorites"), tabBarLabel: t("nav.favorites") }}
       />
       <Tab.Screen
         name="Mapa"
         component={MapScreen}
         options={{
-          title: "Mapa",
-          tabBarLabel: "Mapa",
+          title: t("nav.map"),
+          tabBarLabel: t("nav.map"),
           tabBarButton: Platform.OS === "web" ? () => null : undefined,
         }}
       />
@@ -85,6 +104,8 @@ function MainTabs() {
 }
 
 export default function AppNavigator() {
+  const { t } = useTranslation();
+
   return (
     <NavigationContainer>
       <Stack.Navigator
@@ -107,7 +128,7 @@ export default function AppNavigator() {
         <Stack.Screen
           name="Details"
           component={DetailsScreen}
-          options={{ title: "Detalhes" }}
+          options={{ title: t("nav.details") }}
         />
       </Stack.Navigator>
     </NavigationContainer>

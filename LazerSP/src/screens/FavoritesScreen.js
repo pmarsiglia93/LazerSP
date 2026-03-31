@@ -2,12 +2,14 @@ import { Ionicons } from "@expo/vector-icons";
 import { FlatList, StyleSheet, Text, View } from "react-native";
 
 import Animated, { FadeInDown } from "react-native-reanimated";
+import { useTranslation } from "react-i18next";
 import PlaceCard from "../components/PlaceCard";
 import { useFavorites } from "../context/FavoritesContext";
 import { useVisits } from "../context/VisitsContext";
 import theme from "../styles/theme";
 
 export default function FavoritesScreen({ navigation }) {
+  const { t } = useTranslation();
   const { favorites, isFavorite, toggleFavorite } = useFavorites();
   const { isVisited } = useVisits();
 
@@ -32,23 +34,19 @@ export default function FavoritesScreen({ navigation }) {
         )}
         ListHeaderComponent={
           <View style={styles.headerContainer}>
-            <Text style={styles.title}>Seus favoritos</Text>
+            <Text style={styles.title}>{t("favorites.title")}</Text>
             {favorites.length > 0 && (
-              <Text style={styles.count}>{favorites.length} lugar{favorites.length !== 1 ? "es" : ""} salvo{favorites.length !== 1 ? "s" : ""}</Text>
+              <Text style={styles.count}>
+                {t(favorites.length === 1 ? "favorites.count_one" : "favorites.count_other", { count: favorites.length })}
+              </Text>
             )}
           </View>
         }
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
-            <Ionicons
-              name="heart-outline"
-              size={64}
-              color={theme.colors.border}
-            />
-            <Text style={styles.emptyTitle}>Nenhum favorito ainda</Text>
-            <Text style={styles.emptyText}>
-              Explore os lugares e toque no coração para salvar seus favoritos.
-            </Text>
+            <Ionicons name="heart-outline" size={64} color={theme.colors.border} />
+            <Text style={styles.emptyTitle}>{t("favorites.empty_title")}</Text>
+            <Text style={styles.emptyText}>{t("favorites.empty_text")}</Text>
           </View>
         }
         contentContainerStyle={[
@@ -61,48 +59,13 @@ export default function FavoritesScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: theme.colors.background,
-  },
-  content: {
-    padding: theme.spacing.md,
-    paddingBottom: theme.spacing.xl,
-  },
-  contentEmpty: {
-    flexGrow: 1,
-  },
-  headerContainer: {
-    marginBottom: theme.spacing.md,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "800",
-    color: theme.colors.text,
-    marginBottom: 4,
-  },
-  count: {
-    fontSize: 14,
-    color: theme.colors.textLight,
-    fontWeight: "600",
-  },
-  emptyContainer: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 60,
-    gap: 12,
-  },
-  emptyTitle: {
-    fontSize: 20,
-    fontWeight: "700",
-    color: theme.colors.text,
-  },
-  emptyText: {
-    fontSize: 15,
-    color: theme.colors.textLight,
-    textAlign: "center",
-    lineHeight: 24,
-    paddingHorizontal: 32,
-  },
+  container: { flex: 1, backgroundColor: theme.colors.background },
+  content: { padding: theme.spacing.md, paddingBottom: theme.spacing.xl },
+  contentEmpty: { flexGrow: 1 },
+  headerContainer: { marginBottom: theme.spacing.md },
+  title: { fontSize: 24, fontWeight: "800", color: theme.colors.text, marginBottom: 4 },
+  count: { fontSize: 14, color: theme.colors.textLight, fontWeight: "600" },
+  emptyContainer: { flex: 1, alignItems: "center", justifyContent: "center", paddingVertical: 60, gap: 12 },
+  emptyTitle: { fontSize: 20, fontWeight: "700", color: theme.colors.text },
+  emptyText: { fontSize: 15, color: theme.colors.textLight, textAlign: "center", lineHeight: 24, paddingHorizontal: 32 },
 });

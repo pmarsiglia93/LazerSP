@@ -1,9 +1,11 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import theme from "../styles/theme";
 
 export default function PlaceCard({ place, onPress, onFavoritePress, favorite, visited }) {
+  const { t } = useTranslation();
   const distanceLabel =
     place.distance !== null && place.distance !== undefined
       ? `${place.distance.toFixed(1)} km`
@@ -26,13 +28,13 @@ export default function PlaceCard({ place, onPress, onFavoritePress, favorite, v
           { backgroundColor: place.isOpen ? theme.colors.success : theme.colors.danger },
         ]}
       >
-        <Text style={styles.statusText}>{place.isOpen ? "Aberto" : "Fechado"}</Text>
+        <Text style={styles.statusText}>{place.isOpen ? t("details.open") : t("details.closed")}</Text>
       </View>
 
       {visited && (
         <View style={styles.visitedBadge}>
           <Ionicons name="checkmark-circle" size={13} color={theme.colors.white} />
-          <Text style={styles.visitedBadgeText}>Visitado</Text>
+          <Text style={styles.visitedBadgeText}>{t("details.visited")}</Text>
         </View>
       )}
 
@@ -61,7 +63,7 @@ export default function PlaceCard({ place, onPress, onFavoritePress, favorite, v
         {distanceLabel && (
           <View style={styles.distanceRow}>
             <Ionicons name="navigate-outline" size={13} color={theme.colors.success} />
-            <Text style={styles.distance}>{distanceLabel} de você</Text>
+            <Text style={styles.distance}>{distanceLabel} {t("details.from_you")}</Text>
           </View>
         )}
 
