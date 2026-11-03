@@ -14,6 +14,12 @@ services:
       PORT: 3001
       NODE_ENV: production
       DB_PATH: /data/lazersp.db
+      # Sem esta variável o CORS de produção bloqueia o frontend web em :8081
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:8081}
+      # Obrigatórias para o login do painel; defina no .env da raiz (veja .env.example)
+      ADMIN_USER: ${ADMIN_USER:?defina ADMIN_USER no .env da raiz}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?defina ADMIN_PASSWORD no .env da raiz}
+      JWT_SECRET: ${JWT_SECRET:?defina JWT_SECRET no .env da raiz}
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://localhost:3001/"]
       interval: 15s
