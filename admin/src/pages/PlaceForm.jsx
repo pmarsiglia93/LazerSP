@@ -283,7 +283,7 @@ export default function PlaceForm() {
 
           {/* Status */}
           <Section title="Status">
-            <Field label="" hint="Se o horário de funcionamento estiver preenchido, o status é calculado automaticamente pelo sistema. Este campo serve como override manual.">
+            <Field label="" hint="O status é calculado automaticamente a partir do horário de funcionamento. Este campo só é usado quando o horário está vazio ou em um formato que o sistema não reconhece.">
               <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
                 <input
                   type="checkbox"
