@@ -8,8 +8,25 @@ const authRouter = require("./routes/auth");
 const adminRouter = require("./routes/admin");
 const { notFound, errorHandler } = require("./middleware/errorHandler");
 const morgan = require("morgan");
+const helmet = require("helmet");
 
 const app = express();
+
+// Headers de segurança. A CSP libera o que o painel /admin usa fora da origem:
+// imagens externas (pré-visualização da foto) e a geocodificação no Nominatim.
+app.disable("x-powered-by");
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        "img-src": ["'self'", "data:", "https:"],
+        "connect-src": ["'self'", "https://nominatim.openstreetmap.org"],
+        // Desligado para o painel continuar funcionando em http://localhost (Docker local)
+        "upgrade-insecure-requests": null,
+      },
+    },
+  })
+);
 
 const corsOptions = {
   origin:
