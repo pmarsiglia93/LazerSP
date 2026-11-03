@@ -1,50 +1,60 @@
-# Welcome to your Expo app 👋
+# LazerSP · App mobile
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+App React Native (Expo SDK 54, React Native 0.81, React 19) do LazerSP, guia de lazer urbano de São Paulo. Visão geral do projeto, backend e painel administrativo no [README da raiz](../README.md).
 
-## Get started
-
-1. Install dependencies
-
-   ```bash
-   npm install
-   ```
-
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+## Como rodar
 
 ```bash
-npm run reset-project
+cp .env.example .env   # ajuste EXPO_PUBLIC_API_URL com o IP da sua máquina
+npm install
+npx expo start
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+- `a`: abre no emulador Android
+- `w`: abre a versão web (o mapa não é exibido na web)
+- QR code: abre no Expo Go, com celular e computador na mesma rede Wi-Fi
 
-## Learn more
+O backend precisa estar rodando (veja `../backend`).
 
-To learn more about developing your project with Expo, look at the following resources:
+## Configuração da API
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+A URL da API é resolvida em `src/services/api.js`, nesta ordem:
 
-## Join the community
+1. `EXPO_PUBLIC_API_URL` do `.env`
+2. IP do Metro bundler (modo LAN)
+3. Fallback por plataforma: `10.0.2.2` no emulador Android, `localhost` na web e no simulador iOS
 
-Join our community of developers creating universal apps.
+## Telas
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+| Tela | Arquivo | O que faz |
+|------|---------|-----------|
+| Splash | `src/screens/SplashScreen.js` | Apresentação e entrada no app |
+| Explorar | `src/screens/HomeScreen.js` | Lista com busca, filtros, ordenação por distância e busca por endereço quando o GPS está desligado |
+| Detalhes | `src/screens/DetailsScreen.js` | Informações do lugar, favoritar, marcar visita com nota, Google Maps, Uber e Instagram |
+| Favoritos | `src/screens/FavoritesScreen.js` | Lugares salvos no aparelho |
+| Mapa | `src/screens/MapScreen.js` | Marcadores de todos os lugares (`MapScreen.web.js` substitui na web) |
+
+## Estado e dados
+
+- `src/context/LocationContext.js`: permissão, posição atual e cálculo de distância (Haversine) feito no aparelho. A localização não é enviada ao backend.
+- `src/context/FavoritesContext.js` e `src/context/VisitsContext.js`: persistência local com AsyncStorage.
+- `src/hooks/usePlaces.js`: busca com debounce de 400 ms e recarga ao voltar ao primeiro plano.
+- `src/i18n/`: português, inglês e espanhol, com detecção do idioma do aparelho.
+
+## Scripts
+
+| Comando | Descrição |
+|---------|-----------|
+| `npm start` | Inicia o Metro bundler |
+| `npm run android` | Abre no Android |
+| `npm run ios` | Abre no iOS (ainda não validado em dispositivo) |
+| `npm run web` | Abre a versão web |
+| `npm run lint` | ESLint com a configuração do Expo |
+
+## Build
+
+Os perfis de build ficam em `eas.json` (`development`, `preview` e `production`). Exemplo de build para distribuição interna:
+
+```bash
+npx eas build --platform android --profile preview
+```
