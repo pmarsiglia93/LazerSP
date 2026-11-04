@@ -20,6 +20,38 @@ function loadTags(db, placeIds) {
 }
 
 /**
+ * Média e quantidade de avaliações publicadas de vários lugares, em uma consulta.
+ * @returns {Map<number, { average: number|null, count: number }>}
+ */
+function loadReviewSummaries(db, placeIds) {
+  const summaries = new Map(placeIds.map((id) => [id, { average: null, count: 0 }]));
+  if (placeIds.length === 0) return summaries;
+
+  const placeholders = placeIds.map(() => "?").join(", ");
+  const rows = db
+    .prepare(`
+      SELECT place_id, COUNT(*) AS count, AVG(rating) AS average
+      FROM reviews
+      WHERE status = 'published' AND place_id IN (${placeholders})
+      GROUP BY place_id
+    `)
+    .all(...placeIds);
+
+  for (const row of rows) {
+    summaries.set(row.place_id, { average: Math.round(row.average * 10) / 10, count: row.count });
+  }
+  return summaries;
+}
+
+/** Tags e resumo de avaliações de uma lista de linhas, formatadas para a API. */
+function formatPlaces(db, rows) {
+  const ids = rows.map((r) => r.id);
+  const tags = loadTags(db, ids);
+  const reviews = loadReviewSummaries(db, ids);
+  return rows.map((row) => formatPlace(row, tags.get(row.id), reviews.get(row.id)));
+}
+
+/**
  * Status de aberto/fechado:
  * - calculado pelo horário de funcionamento quando ele pode ser interpretado;
  * - `null` quando o horário é texto livre ("Conforme programação");
@@ -32,7 +64,7 @@ function resolveIsOpen(row) {
 }
 
 /** Converte uma linha da tabela places no formato da API. */
-function formatPlace(row, tags = []) {
+function formatPlace(row, tags = [], reviews = { average: null, count: 0 }) {
   return {
     id: row.id,
     name: row.name,
@@ -49,6 +81,7 @@ function formatPlace(row, tags = []) {
     longitude: row.longitude,
     instagram: row.instagram || null,
     tags,
+    reviews,
     createdAt: row.created_at,
   };
 }
@@ -57,7 +90,7 @@ function formatPlace(row, tags = []) {
 function findPlace(db, id) {
   const row = db.prepare("SELECT * FROM places WHERE id = ?").get(id);
   if (!row) return null;
-  return formatPlace(row, loadTags(db, [row.id]).get(row.id));
+  return formatPlaces(db, [row])[0];
 }
 
-module.exports = { formatPlace, loadTags, findPlace };
+module.exports = { formatPlace, formatPlaces, loadTags, loadReviewSummaries, findPlace };

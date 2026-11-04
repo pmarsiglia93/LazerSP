@@ -4,7 +4,11 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const rateLimit = require("express-rate-limit").default;
 const { z } = require("zod");
-const { getAdminConfig } = require("../config");
+const { getAdminConfig, getGoogleConfig } = require("../config");
+const { verifyGoogleIdToken } = require("../auth/googleVerifier");
+const { getDb } = require("../database/db");
+const { signUserToken } = require("../middleware/userAuth");
+const { formatMe } = require("../serializers/user");
 
 const router = express.Router();
 
@@ -67,6 +71,57 @@ router.post("/login", loginLimiter, async (req, res, next) => {
       expiresIn: "24h",
     });
     res.json({ success: true, token });
+  } catch (err) {
+    next(err);
+  }
+});
+
+const googleLimiter = rateLimit({
+  windowMs: LOGIN_WINDOW_MS,
+  limit: 30,
+  standardHeaders: "draft-8",
+  legacyHeaders: false,
+  message: { success: false, error: "Muitas tentativas de login. Tente novamente em alguns minutos." },
+});
+
+const googleSchema = z.object({ idToken: z.string().min(20).max(4096) });
+
+// POST /api/auth/google — login de usuários do app com o ID token do Google
+router.post("/google", googleLimiter, async (req, res, next) => {
+  try {
+    const google = getGoogleConfig();
+    if (!google.enabled) {
+      return res.status(503).json({ success: false, error: "Login com Google não configurado" });
+    }
+
+    const parsed = googleSchema.safeParse(req.body || {});
+    if (!parsed.success) {
+      return res.status(400).json({ success: false, error: "idToken é obrigatório" });
+    }
+
+    let profile;
+    try {
+      profile = await verifyGoogleIdToken(parsed.data.idToken, google.clientIds);
+    } catch {
+      return res.status(401).json({ success: false, error: "Login com Google inválido ou expirado" });
+    }
+    if (!profile.emailVerified) {
+      return res.status(401).json({ success: false, error: "E-mail do Google não verificado" });
+    }
+
+    const db = getDb();
+    db.prepare(`
+      INSERT INTO users (google_sub, email, name, avatar_url)
+      VALUES (@sub, @email, @name, @picture)
+      ON CONFLICT (google_sub) DO UPDATE SET
+        email = excluded.email,
+        name = excluded.name,
+        avatar_url = excluded.avatar_url,
+        last_login_at = datetime('now')
+    `).run(profile);
+    const user = db.prepare("SELECT * FROM users WHERE google_sub = ?").get(profile.sub);
+
+    res.json({ success: true, token: signUserToken(user, google.jwtSecret), user: formatMe(user) });
   } catch (err) {
     next(err);
   }

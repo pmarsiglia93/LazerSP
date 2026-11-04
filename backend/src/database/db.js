@@ -40,6 +40,47 @@ function initDb() {
       applied_at TEXT DEFAULT (datetime('now'))
     );
 
+    CREATE TABLE IF NOT EXISTS users (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      google_sub TEXT NOT NULL UNIQUE,
+      email TEXT NOT NULL,
+      name TEXT NOT NULL DEFAULT '',
+      avatar_url TEXT,
+      created_at TEXT DEFAULT (datetime('now')),
+      last_login_at TEXT DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS user_favorites (
+      user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      place_id INTEGER NOT NULL REFERENCES places(id) ON DELETE CASCADE,
+      created_at TEXT DEFAULT (datetime('now')),
+      PRIMARY KEY (user_id, place_id)
+    );
+
+    CREATE TABLE IF NOT EXISTS user_visits (
+      user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      place_id INTEGER NOT NULL REFERENCES places(id) ON DELETE CASCADE,
+      rating INTEGER CHECK (rating BETWEEN 1 AND 5),
+      note TEXT NOT NULL DEFAULT '',
+      visited_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
+      PRIMARY KEY (user_id, place_id)
+    );
+
+    CREATE TABLE IF NOT EXISTS reviews (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      place_id INTEGER NOT NULL REFERENCES places(id) ON DELETE CASCADE,
+      user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      rating INTEGER NOT NULL CHECK (rating BETWEEN 1 AND 5),
+      comment TEXT NOT NULL DEFAULT '',
+      status TEXT NOT NULL DEFAULT 'published' CHECK (status IN ('published', 'hidden')),
+      created_at TEXT DEFAULT (datetime('now')),
+      updated_at TEXT DEFAULT (datetime('now')),
+      UNIQUE (user_id, place_id)
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_reviews_place_status ON reviews (place_id, status);
+
     CREATE TABLE IF NOT EXISTS tags (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       place_id INTEGER NOT NULL,

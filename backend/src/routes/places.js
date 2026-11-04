@@ -6,6 +6,7 @@ const {
   getCategories,
 } = require("../controllers/placesController");
 const { validateId } = require("../middleware/validateId");
+const reviewsRouter = require("./reviews");
 
 router.param("id", validateId);
 
@@ -14,6 +15,9 @@ router.get("/categories", getCategories);
 
 // GET /api/places
 router.get("/", getPlaces);
+
+// /api/places/:id/reviews
+router.use("/:id/reviews", reviewsRouter);
 
 // GET /api/places/:id
 router.get("/:id", getPlaceById);

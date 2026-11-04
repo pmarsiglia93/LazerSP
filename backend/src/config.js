@@ -51,6 +51,19 @@ function getAdminConfig() {
 }
 
 /**
+ * Login de usuários do app com Google. GOOGLE_CLIENT_IDS lista os client IDs
+ * OAuth aceitos como audiência do ID token (web, Android e iOS), separados por vírgula.
+ */
+function getGoogleConfig() {
+  const clientIds = read("GOOGLE_CLIENT_IDS")
+    .split(",")
+    .map((id) => id.trim())
+    .filter(Boolean);
+  const jwtSecret = read("JWT_SECRET");
+  return { clientIds, jwtSecret, enabled: clientIds.length > 0 && Boolean(jwtSecret) };
+}
+
+/**
  * Verifica a configuração na subida do servidor e devolve os avisos.
  * Não derruba o processo: um painel mal configurado não deve tirar do ar a
  * API pública consumida pelo app. O login responde 503 nesse caso.
@@ -73,6 +86,10 @@ function checkConfig() {
     }
   }
 
+  if (!getGoogleConfig().enabled) {
+    warnings.push("Login com Google desativado: defina GOOGLE_CLIENT_IDS e JWT_SECRET.");
+  }
+
   if (isProduction() && getAllowedOrigins().length === 0) {
     warnings.push("ALLOWED_ORIGINS vazio em produção: navegadores (versão web e painel em outra origem) serão bloqueados pelo CORS.");
   }
@@ -84,6 +101,7 @@ module.exports = {
   isProduction,
   getAllowedOrigins,
   getAdminConfig,
+  getGoogleConfig,
   checkConfig,
   MIN_JWT_SECRET_LENGTH,
 };
