@@ -44,7 +44,17 @@
           "backgroundColor": "#1E3A5F"
         }
       ],
-      "expo-localization"
+      "expo-localization",
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "O LazerSP usa sua localização para mostrar a distância até cada lugar e ordenar os mais próximos. A localização fica no seu aparelho e não é enviada aos nossos servidores.",
+          "locationAlwaysAndWhenInUsePermission": false,
+          "locationAlwaysPermission": false,
+          "isIosBackgroundLocationEnabled": false,
+          "isAndroidBackgroundLocationEnabled": false
+        }
+      ]
     ],
     "extra": {
       "eas": {
