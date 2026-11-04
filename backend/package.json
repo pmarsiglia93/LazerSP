@@ -7,23 +7,38 @@
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
     "seed": "node src/database/seed.js",
-    "test": "jest --testPathPattern=tests/"
+    "test": "jest",
+    "hash-password": "node scripts/hash-password.js"
   },
   "jest": {
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "coverageThreshold": {
+      "global": {
+        "lines": 80
+      }
+    },
+    "collectCoverageFrom": [
+      "src/**/*.js"
+    ]
   },
   "dependencies": {
-    "better-sqlite3": "^9.4.3",
+    "bcryptjs": "^3.0.3",
+    "better-sqlite3": "^12.11.1",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
+    "express-rate-limit": "^8.7.3",
     "helmet": "^8.3.0",
     "jsonwebtoken": "^9.0.3",
-    "morgan": "^1.10.1"
+    "morgan": "^1.10.1",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "jest": "^29.7.0",
     "nodemon": "^3.1.0",
     "supertest": "^7.0.0"
+  },
+  "engines": {
+    "node": ">=22"
   }
 }

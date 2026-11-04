@@ -1,5 +1,5 @@
 # ── Build stage ──────────────────────────────────────────────────────────────
-FROM node:20-alpine AS builder
+FROM node:22-alpine AS builder
 
 # better-sqlite3 precisa de ferramentas de compilação nativa
 RUN apk add --no-cache python3 make g++
@@ -12,7 +12,7 @@ RUN npm ci --omit=dev
 COPY . .
 
 # ── Runtime stage ─────────────────────────────────────────────────────────────
-FROM node:20-alpine AS runtime
+FROM node:22-alpine AS runtime
 
 RUN apk add --no-cache libstdc++
 
