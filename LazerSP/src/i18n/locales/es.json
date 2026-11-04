@@ -66,7 +66,9 @@
     "about": "Sobre el lugar",
     "tags": "Etiquetas",
     "back": "Volver",
-    "load_error": "No se pudieron cargar los detalles."
+    "load_error": "No se pudieron cargar los detalles.",
+    "check_schedule": "Ver programación",
+    "no_rating": "Sin nota"
   },
   "map": {
     "loading": "Cargando mapa...",
@@ -93,6 +95,9 @@
     "Pontos Turísticos": "Puntos Turísticos",
     "Bares": "Bares",
     "Restaurantes": "Restaurantes",
-    "Baladas": "Discotecas"
+    "Baladas": "Discotecas",
+    "Teatros": "Teatros",
+    "Cinemas": "Cines",
+    "Esportes": "Deportes"
   }
 }

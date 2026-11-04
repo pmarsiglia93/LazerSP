@@ -125,8 +125,8 @@ export default function PlacesList() {
                         ⭐ {place.rating}
                       </td>
                       <td style={{ padding: '14px 16px' }}>
-                        <span style={{ background: place.isOpen ? '#E6F8F5' : '#FFF0F0', color: place.isOpen ? C.success : C.danger, fontSize: 12, fontWeight: 700, padding: '4px 10px', borderRadius: 999 }}>
-                          {place.isOpen ? 'Aberto' : 'Fechado'}
+                        <span style={{ background: place.isOpen === null ? '#F1F3F5' : place.isOpen ? '#E6F8F5' : '#FFF0F0', color: place.isOpen === null ? C.textLight : place.isOpen ? C.success : C.danger, fontSize: 12, fontWeight: 700, padding: '4px 10px', borderRadius: 999 }}>
+                          {place.isOpen === null ? 'Programação' : place.isOpen ? 'Aberto' : 'Fechado'}
                         </span>
                       </td>
                       <td style={{ padding: '14px 16px', textAlign: 'right' }}>

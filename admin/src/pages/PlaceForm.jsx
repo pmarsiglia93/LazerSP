@@ -295,7 +295,7 @@ export default function PlaceForm() {
 
           {/* Status */}
           <Section title="Status">
-            <Field label="" hint="O status é calculado automaticamente a partir do horário de funcionamento. Este campo só é usado quando o horário está vazio ou em um formato que o sistema não reconhece.">
+            <Field label="" hint={'O status é calculado pelo horário de funcionamento (aceita vários trechos, como "Ter-Sex 10:00 - 21:00; Sáb-Dom 10:00 - 18:00"). Com texto livre, como "Conforme programação", o app mostra "Ver programação". Este campo só vale quando o horário fica vazio.'}>
               <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
                 <input
                   type="checkbox"

@@ -3,9 +3,11 @@ import { Image } from "expo-image";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useTranslation } from "react-i18next";
 import theme from "../styles/theme";
+import { getStatusStyle, hasRating } from "../utils/place";
 
 export default function PlaceCard({ place, onPress, onFavoritePress, favorite, visited }) {
   const { t } = useTranslation();
+  const status = getStatusStyle(place);
   const distanceLabel =
     place.distance !== null && place.distance !== undefined
       ? `${place.distance.toFixed(1)} km`
@@ -22,13 +24,8 @@ export default function PlaceCard({ place, onPress, onFavoritePress, favorite, v
       />
 
       {/* Badge de status sobreposto à imagem */}
-      <View
-        style={[
-          styles.statusBadge,
-          { backgroundColor: place.isOpen ? theme.colors.success : theme.colors.danger },
-        ]}
-      >
-        <Text style={styles.statusText}>{place.isOpen ? t("details.open") : t("details.closed")}</Text>
+      <View style={[styles.statusBadge, { backgroundColor: status.color }]}>
+        <Text style={styles.statusText}>{t(status.labelKey)}</Text>
       </View>
 
       {visited && (
@@ -53,7 +50,7 @@ export default function PlaceCard({ place, onPress, onFavoritePress, favorite, v
 
         {/* Categoria */}
         <View style={styles.categoryBadge}>
-          <Text style={styles.categoryText}>{place.category}</Text>
+          <Text style={styles.categoryText}>{t(`categories.${place.category}`, { defaultValue: place.category })}</Text>
         </View>
 
         {/* Endereço */}
@@ -69,10 +66,14 @@ export default function PlaceCard({ place, onPress, onFavoritePress, favorite, v
 
         {/* Meta: rating + preço */}
         <View style={styles.metaRow}>
-          <View style={styles.metaItem}>
-            <Text style={styles.rating}>⭐ {place.rating}</Text>
-          </View>
-          <View style={styles.metaDivider} />
+          {hasRating(place) && (
+            <>
+              <View style={styles.metaItem}>
+                <Text style={styles.rating}>⭐ {place.rating}</Text>
+              </View>
+              <View style={styles.metaDivider} />
+            </>
+          )}
           <Text style={styles.price}>{place.priceLevel}</Text>
         </View>
 
