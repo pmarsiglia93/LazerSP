@@ -20,10 +20,18 @@ function loadTags(db, placeIds) {
 }
 
 /**
- * Converte uma linha da tabela places no formato da API.
- * `isOpen` vem do horário de funcionamento; o campo `is_open` do banco só é
- * usado quando o horário não pode ser interpretado.
+ * Status de aberto/fechado:
+ * - calculado pelo horário de funcionamento quando ele pode ser interpretado;
+ * - `null` quando o horário é texto livre ("Conforme programação");
+ * - o campo manual `is_open` só vale quando o horário está vazio.
  */
+function resolveIsOpen(row) {
+  const computed = isOpenNow(row.opening_hours);
+  if (computed !== null) return computed;
+  return row.opening_hours ? null : row.is_open === 1;
+}
+
+/** Converte uma linha da tabela places no formato da API. */
 function formatPlace(row, tags = []) {
   return {
     id: row.id,
@@ -36,7 +44,7 @@ function formatPlace(row, tags = []) {
     openingHours: row.opening_hours,
     priceLevel: row.price_level,
     highlight: row.highlight,
-    isOpen: isOpenNow(row.opening_hours) ?? row.is_open === 1,
+    isOpen: resolveIsOpen(row),
     latitude: row.latitude,
     longitude: row.longitude,
     instagram: row.instagram || null,

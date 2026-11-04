@@ -35,6 +35,11 @@ function initDb() {
       created_at TEXT DEFAULT (datetime('now'))
     );
 
+    CREATE TABLE IF NOT EXISTS data_migrations (
+      id TEXT PRIMARY KEY,
+      applied_at TEXT DEFAULT (datetime('now'))
+    );
+
     CREATE TABLE IF NOT EXISTS tags (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       place_id INTEGER NOT NULL,

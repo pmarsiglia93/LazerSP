@@ -94,6 +94,22 @@ describe("POST /api/admin/places", () => {
     expect(res.body.data).toMatchObject({ priceLevel: "Gratuito", rating: 0, instagram: null, tags: [] });
   });
 
+  it("status fica null quando o horário é texto livre", async () => {
+    const res = await request(app)
+      .post("/api/admin/places")
+      .set(auth)
+      .send({ ...validPlace, name: "Teatro Teste", openingHours: "Conforme programação" });
+    expect(res.body.data.isOpen).toBeNull();
+  });
+
+  it("usa o status manual quando o horário está vazio", async () => {
+    const res = await request(app)
+      .post("/api/admin/places")
+      .set(auth)
+      .send({ ...validPlace, name: "Sem Horário", openingHours: "", isOpen: false });
+    expect(res.body.data.isOpen).toBe(false);
+  });
+
   it.each([
     ["sem nome", { name: "" }, "Nome é obrigatório"],
     ["sem categoria", { category: undefined }, "Categoria é obrigatório"],

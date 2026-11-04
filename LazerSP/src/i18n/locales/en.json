@@ -66,7 +66,9 @@
     "about": "About this place",
     "tags": "Tags",
     "back": "Back",
-    "load_error": "Could not load details."
+    "load_error": "Could not load details.",
+    "check_schedule": "See schedule",
+    "no_rating": "No rating"
   },
   "map": {
     "loading": "Loading map...",
@@ -93,6 +95,9 @@
     "Pontos Turísticos": "Tourist Spots",
     "Bares": "Bars",
     "Restaurantes": "Restaurants",
-    "Baladas": "Nightclubs"
+    "Baladas": "Nightclubs",
+    "Teatros": "Theaters",
+    "Cinemas": "Cinemas",
+    "Esportes": "Sports"
   }
 }

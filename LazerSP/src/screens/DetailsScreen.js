@@ -19,6 +19,7 @@ import { useLocation } from "../context/LocationContext";
 import { useVisits } from "../context/VisitsContext";
 import { fetchPlaceById } from "../services/placesService";
 import theme from "../styles/theme";
+import { directionsUrl, formatOpeningHours, getStatusStyle, hasRating } from "../utils/place";
 
 const DATE_LOCALES = { pt: "pt-BR", en: "en-US", es: "es-ES" };
 const RATING_KEYS = ["", "details.rating_1", "details.rating_2", "details.rating_3", "details.rating_4", "details.rating_5"];
@@ -90,6 +91,7 @@ export default function DetailsScreen({ route, navigation }) {
   }
 
   const favorite = isFavorite(place.id);
+  const status = getStatusStyle(place);
   const distance = getDistance(place.latitude, place.longitude);
   const distanceLabel = distance !== null ? `${distance.toFixed(1)} km ${t("details.from_you")}` : null;
   const dateLocale = DATE_LOCALES[i18n.language] || "pt-BR";
@@ -104,13 +106,11 @@ export default function DetailsScreen({ route, navigation }) {
             <Text style={styles.name}>{place.name}</Text>
             <View style={styles.categoryRow}>
               <View style={styles.categoryBadge}>
-                <Text style={styles.categoryText}>{place.category}</Text>
+                <Text style={styles.categoryText}>{t(`categories.${place.category}`, { defaultValue: place.category })}</Text>
               </View>
-              <View style={[styles.statusBadge, { backgroundColor: place.isOpen ? "#E6F9F0" : "#FFF0F0" }]}>
-                <View style={[styles.statusDot, { backgroundColor: place.isOpen ? theme.colors.success : theme.colors.danger }]} />
-                <Text style={[styles.statusText, { color: place.isOpen ? theme.colors.success : theme.colors.danger }]}>
-                  {place.isOpen ? t("details.open") : t("details.closed")}
-                </Text>
+              <View style={[styles.statusBadge, { backgroundColor: status.background }]}>
+                <View style={[styles.statusDot, { backgroundColor: status.color }]} />
+                <Text style={[styles.statusText, { color: status.color }]}>{t(status.labelKey)}</Text>
               </View>
             </View>
           </View>
@@ -126,12 +126,12 @@ export default function DetailsScreen({ route, navigation }) {
         <View style={styles.infoBox}>
           <View style={styles.infoItem}>
             <Text style={styles.infoLabel}>{t("details.rating")}</Text>
-            <Text style={styles.infoValue}>⭐ {place.rating}</Text>
+            <Text style={styles.infoValue}>{hasRating(place) ? `⭐ ${place.rating}` : t("details.no_rating")}</Text>
           </View>
           <View style={styles.infoSeparator} />
           <View style={styles.infoItem}>
             <Text style={styles.infoLabel}>{t("details.hours")}</Text>
-            <Text style={styles.infoValue}>{place.openingHours}</Text>
+            <Text style={styles.infoValue}>{formatOpeningHours(place.openingHours)}</Text>
           </View>
           <View style={styles.infoSeparator} />
           <View style={styles.infoItem}>
@@ -234,7 +234,7 @@ export default function DetailsScreen({ route, navigation }) {
         <View style={styles.transportRow}>
           <TouchableOpacity
             style={[styles.transportButton, styles.directionsButton]}
-            onPress={() => Linking.openURL(`https://www.google.com/maps/dir/?api=1&destination=${place.latitude},${place.longitude}&travelmode=transit`)}
+            onPress={() => Linking.openURL(directionsUrl(place))}
           >
             <Ionicons name="navigate" size={18} color={theme.colors.white} />
             <Text style={styles.directionsButtonText}>{t("details.directions")}</Text>

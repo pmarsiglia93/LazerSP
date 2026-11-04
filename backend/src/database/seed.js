@@ -762,6 +762,11 @@ function seed({ silent = false } = {}) {
 // permitindo importar `places` e `seed` nos testes.
 if (require.main === module) {
   seed();
+  // Importado aqui para evitar dependência circular com dataMigrations
+  const { applyDataMigrations } = require("./dataMigrations");
+  for (const { id, inserted, skipped } of applyDataMigrations()) {
+    console.log(`✅ Migração de dados ${id}: ${inserted} lugares inseridos, ${skipped.length} já existiam.`);
+  }
 }
 
 module.exports = { places, seed };
