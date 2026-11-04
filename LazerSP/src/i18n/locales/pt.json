@@ -81,7 +81,8 @@
     "favorites": "Favoritos",
     "map": "Mapa",
     "details": "Detalhes",
-    "app_title": "LazerSP"
+    "app_title": "LazerSP",
+    "profile": "Perfil"
   },
   "search": {
     "placeholder": "Buscar parques, museus, mercados..."
@@ -99,5 +100,54 @@
     "Teatros": "Teatros",
     "Cinemas": "Cinemas",
     "Esportes": "Esportes"
+  },
+  "auth": {
+    "sign_in_google": "Entrar com Google",
+    "unavailable": "O login com Google está disponível no app instalado pela loja ou pelo APK.",
+    "error_title": "Não foi possível entrar",
+    "error_text": "Tente novamente em instantes. Se o problema continuar, verifique sua conexão."
+  },
+  "profile": {
+    "signed_out_title": "Entre para levar seus lugares com você",
+    "signed_out_text": "O login é opcional: o app continua funcionando sem conta.",
+    "benefit_sync": "Favoritos e visitas salvos na sua conta",
+    "benefit_reviews": "Avalie lugares e ajude outras pessoas a escolher",
+    "benefit_devices": "Os mesmos dados em qualquer aparelho",
+    "optional_note": "Usamos apenas seu nome, e-mail e foto do Google. Você pode excluir a conta quando quiser.",
+    "synced": "Favoritos e visitas sincronizados",
+    "favorites_count_one": "{{count}} favorito",
+    "favorites_count_other": "{{count}} favoritos",
+    "visits_count_one": "{{count}} lugar visitado",
+    "visits_count_other": "{{count}} lugares visitados",
+    "sign_out": "Sair",
+    "delete_account": "Excluir conta",
+    "delete_title": "Excluir conta?",
+    "delete_text": "Sua conta, avaliações e dados sincronizados serão apagados do servidor. Os favoritos salvos neste aparelho continuam aqui.",
+    "delete_confirm": "Excluir",
+    "delete_error": "Não foi possível excluir a conta. Tente novamente.",
+    "delete_note": "A exclusão apaga do servidor sua conta, avaliações, favoritos e visitas."
+  },
+  "reviews": {
+    "title": "Avaliações da comunidade",
+    "count_one": "{{count}} avaliação",
+    "count_other": "{{count}} avaliações",
+    "empty": "Ainda não há avaliações. Seja a primeira pessoa a avaliar.",
+    "load_error": "Não foi possível carregar as avaliações. Toque para tentar de novo.",
+    "load_more": "Ver mais avaliações",
+    "write": "Escrever avaliação",
+    "sign_in_to_rate": "Entre com Google para avaliar",
+    "your_rating": "Sua nota",
+    "your_review": "Sua avaliação",
+    "comment_placeholder": "Conte como foi (opcional)",
+    "publish": "Publicar",
+    "public_hint": "Sua avaliação aparece para todos com seu primeiro nome e a inicial do sobrenome.",
+    "edit": "Editar",
+    "delete": "Excluir",
+    "delete_title": "Excluir avaliação?",
+    "delete_text": "Ela deixará de aparecer para outras pessoas.",
+    "delete_confirm": "Excluir",
+    "hidden_note": "Esta avaliação foi ocultada pela moderação e não aparece para outras pessoas.",
+    "save_error": "Não foi possível salvar. Tente novamente.",
+    "too_many": "Você enviou muitas avaliações em pouco tempo. Tente mais tarde."
   }
 }

@@ -1,4 +1,4 @@
-import { directionsUrl, formatOpeningHours, getPlaceStatus, getStatusStyle, hasRating } from "../place";
+import { directionsUrl, displayRating, formatOpeningHours, getPlaceStatus, getStatusStyle, hasRating } from "../place";
 
 describe("getPlaceStatus", () => {
   it.each([
@@ -43,5 +43,19 @@ describe("directionsUrl", () => {
     expect(url).toBe(
       "https://www.google.com/maps/dir/?api=1&destination=Sesc%20Pompeia%2C%20Rua%20Cl%C3%A9lia%2C%2093%20-%20Pompeia%2C%20S%C3%A3o%20Paulo&travelmode=transit"
     );
+  });
+});
+
+describe("displayRating", () => {
+  it("prefere a nota curada", () => {
+    expect(displayRating({ rating: 4.7, reviews: { average: 3, count: 10 } })).toBe("4.7");
+  });
+
+  it("usa a média da comunidade quando não há nota curada", () => {
+    expect(displayRating({ rating: 0, reviews: { average: 4.25, count: 3 } })).toBe("4.3 (3)");
+  });
+
+  it("devolve null sem nenhuma nota", () => {
+    expect(displayRating({ rating: 0, reviews: { average: null, count: 0 } })).toBeNull();
   });
 });

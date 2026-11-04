@@ -1,6 +1,6 @@
-const { checkConfig, getAdminConfig } = require("../src/config");
+const { checkConfig, getAdminConfig, getGoogleConfig } = require("../src/config");
 
-const VARS = ["NODE_ENV", "ADMIN_USER", "ADMIN_PASSWORD", "ADMIN_PASSWORD_HASH", "JWT_SECRET", "ALLOWED_ORIGINS"];
+const VARS = ["NODE_ENV", "ADMIN_USER", "ADMIN_PASSWORD", "ADMIN_PASSWORD_HASH", "JWT_SECRET", "ALLOWED_ORIGINS", "GOOGLE_CLIENT_IDS"];
 const LONG_SECRET = "x".repeat(40);
 const VALID_HASH = "$2b$04$abcdefghijklmnopqrstuuMSSfH8x7m8a3n6k5JQkY7v0w1z2y3Cd";
 
@@ -50,8 +50,19 @@ describe("config", () => {
   });
 
   it("não avisa nada com a configuração recomendada", () => {
-    Object.assign(process.env, { ADMIN_USER: "a", ADMIN_PASSWORD_HASH: VALID_HASH, JWT_SECRET: LONG_SECRET });
+    Object.assign(process.env, {
+      ADMIN_USER: "a",
+      ADMIN_PASSWORD_HASH: VALID_HASH,
+      JWT_SECRET: LONG_SECRET,
+      GOOGLE_CLIENT_IDS: "web.apps.googleusercontent.com",
+    });
     expect(checkConfig()).toEqual([]);
+  });
+
+  it("avisa quando o login com Google não está configurado e separa os client IDs", () => {
+    expect(checkConfig()).toContain("Login com Google desativado: defina GOOGLE_CLIENT_IDS e JWT_SECRET.");
+    Object.assign(process.env, { GOOGLE_CLIENT_IDS: " web.id , android.id ,", JWT_SECRET: LONG_SECRET });
+    expect(getGoogleConfig()).toMatchObject({ clientIds: ["web.id", "android.id"], enabled: true });
   });
 
   it("avisa quando ALLOWED_ORIGINS está vazio em produção", () => {

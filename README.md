@@ -33,7 +33,10 @@ Infraestrutura: Docker + Docker Compose. Distribuído hoje como APK Android; a v
 - Status de aberto/fechado calculado pelo horário de funcionamento, com horários diferentes por dia, dois turnos, madrugada e fuso de São Paulo; teatros e cinemas aparecem como "Ver programação"
 - Tela de detalhes com avaliação, horário e preço
 - Botões "Como chegar" (Google Maps, pelo endereço), "Ir de Uber" e Instagram, com deep link para o app ou site
-- Favoritos e registro de visitas com persistência local (AsyncStorage)
+- Favoritos e registro de visitas salvos no aparelho (AsyncStorage)
+- Login opcional com Google: sincroniza favoritos e visitas entre aparelhos
+- Avaliações públicas da comunidade (nota de 1 a 5 e comentário), com média exibida em cada lugar
+- Exclusão de conta pelo próprio app
 - Mapa interativo com marcadores
 - Interface em português, inglês e espanhol
 - Atualização automática ao voltar ao primeiro plano
@@ -42,6 +45,7 @@ Infraestrutura: Docker + Docker Compose. Distribuído hoje como APK Android; a v
 - Login com JWT (senha com hash bcrypt e limite de tentativas)
 - Cadastro, edição e remoção de lugares
 - Geocodificação de endereço via OpenStreetMap (Nominatim)
+- Moderação de avaliações (ocultar, republicar e excluir)
 
 ---
 
@@ -121,8 +125,8 @@ docker compose up --build
 ## Testes
 
 ```bash
-cd backend && npm test      # 271 testes, 92% de cobertura de linhas
-cd LazerSP && npm test      # 29 testes
+cd backend && npm test      # 321 testes, 92% de cobertura de linhas
+cd LazerSP && npm test      # 53 testes
 ```
 
 **Backend** (Jest + Supertest, banco SQLite temporário populado pelo seed):
@@ -131,9 +135,11 @@ cd LazerSP && npm test      # 29 testes
 - rotas públicas: filtros, busca, paginação, ordenação, 404 e headers de segurança
 - login: hash bcrypt, compatibilidade com senha em texto puro, JWT e rate limit
 - rotas de admin: autenticação, validação, transações e remoção em cascata
+- login com Google (token simulado), sincronização de favoritos e visitas, exclusão de conta
+- avaliações: criação, edição, média, nome público, moderação e limite de escrita
 - tratamento de erros e validação das variáveis de ambiente
 
-**Mobile** (jest-expo + React Native Testing Library): cálculo de distância, status e horário dos lugares, link de rotas, resolução da URL da API, contexto de favoritos e o hook `usePlaces` (filtros, debounce, ordenação e erro).
+**Mobile** (jest-expo + React Native Testing Library): cálculo de distância, status, nota e horário dos lugares, link de rotas, resolução da URL da API, login e sessão (`AuthContext`), junção de favoritos e visitas com a conta, contexto de favoritos e o hook `usePlaces`.
 
 O CI (GitHub Actions) roda os testes do backend e do mobile, o lint do mobile e o build do painel a cada push e pull request.
 
@@ -207,8 +213,20 @@ LazerSP/
 | POST | `/api/admin/places` | JWT | Cria um lugar |
 | PUT | `/api/admin/places/:id` | JWT | Atualiza um lugar |
 | DELETE | `/api/admin/places/:id` | JWT | Remove um lugar |
+| GET | `/api/admin/reviews` | JWT | Lista avaliações para moderação (`?status=published\|hidden`) |
+| PATCH | `/api/admin/reviews/:id` | JWT | Oculta ou republica uma avaliação |
+| DELETE | `/api/admin/reviews/:id` | JWT | Exclui uma avaliação |
+| POST | `/api/auth/google` | Não | Login do app com o ID token do Google; retorna um token de usuário válido por 30 dias |
+| GET | `/api/me` | Usuário | Perfil do usuário logado |
+| DELETE | `/api/me` | Usuário | Exclui a conta com favoritos, visitas e avaliações |
+| GET, PUT | `/api/me/favorites` | Usuário | Lê ou substitui a lista de favoritos |
+| PUT, DELETE | `/api/me/favorites/:placeId` | Usuário | Adiciona ou remove um favorito |
+| GET, PUT | `/api/me/visits` | Usuário | Lê ou substitui as visitas |
+| PUT, DELETE | `/api/me/visits/:placeId` | Usuário | Salva ou remove uma visita |
+| GET | `/api/places/:id/reviews` | Opcional | Avaliações publicadas, média e a avaliação do próprio usuário |
+| PUT, DELETE | `/api/places/:id/reviews` | Usuário | Cria, edita ou remove a própria avaliação (até 20 por hora) |
 
-Rotas com JWT exigem o header `Authorization: Bearer <token>`.
+Rotas com JWT ou Usuário exigem o header `Authorization: Bearer <token>`. Tokens de usuário não acessam rotas de admin, e vice-versa.
 
 **Parâmetros de `/api/places`:**
 
@@ -238,6 +256,7 @@ Rotas com JWT exigem o header `Authorization: Bearer <token>`.
 | `JWT_SECRET` | Sim, para o painel | Segredo de assinatura do JWT (mínimo de 32 caracteres aleatórios) |
 | `TRUST_PROXY` | Não | Saltos de proxy confiáveis para identificar o IP do cliente (padrão: 1 em produção) |
 | `API_RATE_LIMIT` | Não | Requisições por IP a cada 15 minutos na API (padrão: 1000) |
+| `GOOGLE_CLIENT_IDS` | Sim, para o login do app | Client IDs OAuth do Google aceitos (web, Android e iOS), separados por vírgula |
 
 Sem a configuração do painel, a API pública continua funcionando e o login responde 503. Os problemas de configuração aparecem no log na subida do servidor.
 
@@ -246,6 +265,12 @@ Sem a configuração do painel, a API pública continua funcionando e o login re
 | Variável | Descrição |
 |----------|-----------|
 | `EXPO_PUBLIC_API_URL` | URL base da API, ex: `http://SEU_IP_LOCAL:3001/api`. Nos builds do EAS vem do `eas.json`; sem ela, builds de release usam a API de produção em HTTPS |
+| `EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID` | Client ID OAuth do tipo Web; sem ele, o login com Google fica oculto |
+| `EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID` | Client ID OAuth do tipo iOS (só para builds iOS) |
+| `GOOGLE_IOS_URL_SCHEME` | Client ID iOS invertido (`com.googleusercontent.apps...`), usado no build iOS |
+
+O login com Google usa um módulo nativo: funciona em development builds e builds do EAS, mas não no Expo Go nem na versão web.
+
 
 **Painel administrativo (opcional)**
 
@@ -258,6 +283,7 @@ Sem a configuração do painel, a API pública continua funcionando e o login re
 ## Limitações conhecidas
 
 - O painel administrativo ainda não tem testes automatizados.
+- Para publicar na App Store com login do Google, a Apple exige também uma opção equivalente (como Sign in with Apple), ainda não implementada.
 - A versão iOS não foi validada em dispositivo.
 - A ordenação por proximidade é feita no aparelho sobre a página retornada pela API (até 50 lugares por padrão).
 

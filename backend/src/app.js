@@ -7,6 +7,7 @@ const { initDb } = require("./database/db");
 const placesRouter = require("./routes/places");
 const authRouter = require("./routes/auth");
 const adminRouter = require("./routes/admin");
+const meRouter = require("./routes/me");
 const { notFound, errorHandler } = require("./middleware/errorHandler");
 const morgan = require("morgan");
 const helmet = require("helmet");
@@ -38,7 +39,7 @@ app.use(
 
 const corsOptions = {
   origin: isProduction() ? getAllowedOrigins() : true,
-  methods: ["GET", "POST", "PUT", "DELETE"],
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
   optionsSuccessStatus: 200,
 };
 app.use(cors(corsOptions));
@@ -77,6 +78,7 @@ app.get("/", (req, res) => {
 app.use("/api/places", placesRouter);
 app.use("/api/auth", authRouter);
 app.use("/api/admin", adminRouter);
+app.use("/api/me", meRouter);
 
 // Serve admin panel static files
 const adminDist = path.join(__dirname, "../public/admin");

@@ -54,7 +54,8 @@
           "isIosBackgroundLocationEnabled": false,
           "isAndroidBackgroundLocationEnabled": false
         }
-      ]
+      ],
+      "expo-secure-store"
     ],
     "extra": {
       "eas": {

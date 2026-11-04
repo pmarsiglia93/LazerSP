@@ -1,5 +1,5 @@
 const { getDb } = require("../database/db");
-const { formatPlace, loadTags, findPlace } = require("../serializers/place");
+const { formatPlaces, findPlace } = require("../serializers/place");
 
 const MAX_SEARCH_LENGTH = 100;
 
@@ -49,8 +49,7 @@ function getPlaces(req, res, next) {
       .prepare(`SELECT * FROM places ${conditions} ORDER BY rating DESC, id ASC LIMIT ? OFFSET ?`)
       .all(...filterParams, limit, offset);
 
-    const tagsByPlace = loadTags(db, rows.map((r) => r.id));
-    const data = rows.map((row) => formatPlace(row, tagsByPlace.get(row.id)));
+    const data = formatPlaces(db, rows);
 
     const { total } = db
       .prepare(`SELECT COUNT(*) as total FROM places ${conditions}`)

@@ -1,6 +1,7 @@
 import Constants from "expo-constants";
 import axios from "axios";
 import { Platform } from "react-native";
+import { getAuthToken } from "./authStorage";
 
 /** API de produção (HTTPS). Usada nos builds quando EXPO_PUBLIC_API_URL não está definida. */
 export const PRODUCTION_API_URL = "https://lazersp-production.up.railway.app/api";
@@ -50,10 +51,27 @@ if (__DEV__) {
   console.log("[API] baseURL:", api.defaults.baseURL);
 }
 
+// Envia o token do usuário logado, quando houver
+api.interceptors.request.use((config) => {
+  const token = getAuthToken();
+  if (token) config.headers.Authorization = `Bearer ${token}`;
+  return config;
+});
+
+let unauthorizedHandler = null;
+
+/** Registrado pelo AuthContext: sessão expirada encerra o login no app. */
+export function setUnauthorizedHandler(handler) {
+  unauthorizedHandler = handler;
+}
+
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (__DEV__) {
+    if (error.response?.status === 401 && getAuthToken() && unauthorizedHandler) {
+      unauthorizedHandler();
+    }
+    if (__DEV__ && error.response?.status !== 401) {
       console.error("[API Error]", error.config?.url, error.message);
     }
     return Promise.reject(error);

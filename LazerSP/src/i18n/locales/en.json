@@ -81,7 +81,8 @@
     "favorites": "Favorites",
     "map": "Map",
     "details": "Details",
-    "app_title": "LazerSP"
+    "app_title": "LazerSP",
+    "profile": "Profile"
   },
   "search": {
     "placeholder": "Search parks, museums, markets..."
@@ -99,5 +100,54 @@
     "Teatros": "Theaters",
     "Cinemas": "Cinemas",
     "Esportes": "Sports"
+  },
+  "auth": {
+    "sign_in_google": "Sign in with Google",
+    "unavailable": "Google sign-in is available in the app installed from the store or the APK.",
+    "error_title": "Could not sign in",
+    "error_text": "Please try again shortly. If the problem persists, check your connection."
+  },
+  "profile": {
+    "signed_out_title": "Sign in to take your places with you",
+    "signed_out_text": "Signing in is optional: the app keeps working without an account.",
+    "benefit_sync": "Favorites and visits saved to your account",
+    "benefit_reviews": "Review places and help others choose",
+    "benefit_devices": "The same data on any device",
+    "optional_note": "We only use your Google name, email and photo. You can delete your account at any time.",
+    "synced": "Favorites and visits synced",
+    "favorites_count_one": "{{count}} favorite",
+    "favorites_count_other": "{{count}} favorites",
+    "visits_count_one": "{{count}} place visited",
+    "visits_count_other": "{{count}} places visited",
+    "sign_out": "Sign out",
+    "delete_account": "Delete account",
+    "delete_title": "Delete account?",
+    "delete_text": "Your account, reviews and synced data will be erased from the server. Favorites saved on this device stay here.",
+    "delete_confirm": "Delete",
+    "delete_error": "Could not delete the account. Please try again.",
+    "delete_note": "Deleting erases your account, reviews, favorites and visits from the server."
+  },
+  "reviews": {
+    "title": "Community reviews",
+    "count_one": "{{count}} review",
+    "count_other": "{{count}} reviews",
+    "empty": "No reviews yet. Be the first to review.",
+    "load_error": "Could not load reviews. Tap to try again.",
+    "load_more": "See more reviews",
+    "write": "Write a review",
+    "sign_in_to_rate": "Sign in with Google to review",
+    "your_rating": "Your rating",
+    "your_review": "Your review",
+    "comment_placeholder": "Tell us how it was (optional)",
+    "publish": "Publish",
+    "public_hint": "Your review is shown to everyone with your first name and last initial.",
+    "edit": "Edit",
+    "delete": "Delete",
+    "delete_title": "Delete review?",
+    "delete_text": "It will no longer be shown to other people.",
+    "delete_confirm": "Delete",
+    "hidden_note": "This review was hidden by moderation and is not shown to other people.",
+    "save_error": "Could not save. Please try again.",
+    "too_many": "You sent too many reviews in a short time. Try again later."
   }
 }

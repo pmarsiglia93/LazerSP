@@ -22,6 +22,7 @@ services:
       ADMIN_PASSWORD_HASH: ${ADMIN_PASSWORD_HASH:-}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
       JWT_SECRET: ${JWT_SECRET:?defina JWT_SECRET no .env da raiz}
+      GOOGLE_CLIENT_IDS: ${GOOGLE_CLIENT_IDS:-}
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://localhost:3001/"]
       interval: 15s

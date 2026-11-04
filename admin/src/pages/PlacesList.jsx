@@ -54,12 +54,20 @@ export default function PlacesList() {
             <p style={{ color: 'rgba(255,255,255,0.55)', fontSize: 12 }}>Gerenciamento de equipamentos de lazer</p>
           </div>
         </div>
+        <div style={{ display: 'flex', gap: 8 }}>
+        <button
+          onClick={() => navigate('/admin/avaliacoes')}
+          style={{ background: 'rgba(255,255,255,0.12)', color: '#fff', border: '1px solid rgba(255,255,255,0.2)', borderRadius: 8, padding: '8px 16px', cursor: 'pointer', fontSize: 13, fontWeight: 600 }}
+        >
+          Avaliações
+        </button>
         <button
           onClick={handleLogout}
           style={{ background: 'rgba(255,255,255,0.12)', color: '#fff', border: '1px solid rgba(255,255,255,0.2)', borderRadius: 8, padding: '8px 16px', cursor: 'pointer', fontSize: 13, fontWeight: 600 }}
         >
           Sair
         </button>
+        </div>
       </div>
 
       <div style={{ maxWidth: 1100, margin: '0 auto', padding: '28px 20px' }}>

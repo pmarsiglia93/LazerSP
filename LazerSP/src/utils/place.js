@@ -27,6 +27,17 @@ export function hasRating(place) {
   return typeof place?.rating === "number" && place.rating > 0;
 }
 
+/**
+ * Nota exibida no app: a curada, quando existe; senão, a média da comunidade.
+ * @returns {string|null} ex.: "4.6" ou "4.2 (12)"; null sem nenhuma nota
+ */
+export function displayRating(place) {
+  if (hasRating(place)) return String(place.rating);
+  const count = place?.reviews?.count ?? 0;
+  if (count > 0 && place.reviews.average != null) return `${place.reviews.average.toFixed(1)} (${count})`;
+  return null;
+}
+
 /** Quebra horários com vários trechos ("Ter-Sex ...; Sáb-Dom ...") em linhas. */
 export function formatOpeningHours(openingHours) {
   if (!openingHours) return "";

@@ -80,6 +80,15 @@ export const updatePlace = (id, data) =>
 export const deletePlace = (id) =>
   request(`/admin/places/${id}`, { method: 'DELETE', fallbackError: 'Erro ao remover lugar' })
 
+export const fetchReviews = (status) =>
+  request(`/admin/reviews?limit=100${status ? `&status=${status}` : ''}`, { fallbackError: 'Erro ao carregar avaliações' })
+
+export const setReviewStatus = (id, status) =>
+  request(`/admin/reviews/${id}`, { method: 'PATCH', body: { status }, fallbackError: 'Erro ao atualizar avaliação' })
+
+export const removeReview = (id) =>
+  request(`/admin/reviews/${id}`, { method: 'DELETE', fallbackError: 'Erro ao excluir avaliação' })
+
 export async function geocodeAddress(address) {
   const query = encodeURIComponent(`${address}, São Paulo, Brasil`)
   const res = await fetch(

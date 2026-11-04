@@ -11,6 +11,7 @@ import DetailsScreen from "../screens/DetailsScreen";
 import FavoritesScreen from "../screens/FavoritesScreen";
 import HomeScreen from "../screens/HomeScreen";
 import MapScreen from "../screens/MapScreen";
+import ProfileScreen from "../screens/ProfileScreen";
 import SplashScreen from "../screens/SplashScreen";
 import theme from "../styles/theme";
 
@@ -21,6 +22,7 @@ const TAB_ICONS = {
   Explorar: { focused: "compass", outline: "compass-outline" },
   Favoritos: { focused: "heart", outline: "heart-outline" },
   Mapa: { focused: "map", outline: "map-outline" },
+  Perfil: { focused: "person", outline: "person-outline" },
 };
 
 const LANGUAGES = [
@@ -98,6 +100,11 @@ function MainTabs() {
           tabBarLabel: t("nav.map"),
           tabBarButton: Platform.OS === "web" ? () => null : undefined,
         }}
+      />
+      <Tab.Screen
+        name="Perfil"
+        component={ProfileScreen}
+        options={{ title: t("nav.profile"), tabBarLabel: t("nav.profile") }}
       />
     </Tab.Navigator>
   );
