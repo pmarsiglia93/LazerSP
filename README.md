@@ -26,12 +26,13 @@ Infraestrutura: Docker + Docker Compose. Distribuído hoje como APK Android; a v
 
 **App mobile**
 - Listagem de lugares com busca por texto e tags
-- Filtro por categoria (Parques, Museus, Bares, Restaurantes, Baladas...)
+- 105 lugares em 11 categorias: parques, museus, centros culturais, teatros, cinemas, esportes, pontos turísticos, mercados, bares, restaurantes e baladas
+- Filtro por categoria
 - Filtro de locais gratuitos
 - Ordenação por proximidade via geolocalização (fórmula de Haversine, calculada no aparelho)
-- Status de aberto/fechado calculado pelo horário de funcionamento, incluindo horários que viram a madrugada, sempre no fuso de São Paulo
+- Status de aberto/fechado calculado pelo horário de funcionamento, com horários diferentes por dia, dois turnos, madrugada e fuso de São Paulo; teatros e cinemas aparecem como "Ver programação"
 - Tela de detalhes com avaliação, horário e preço
-- Botões "Como chegar" (Google Maps), "Ir de Uber" e Instagram, com deep link para o app ou site
+- Botões "Como chegar" (Google Maps, pelo endereço), "Ir de Uber" e Instagram, com deep link para o app ou site
 - Favoritos e registro de visitas com persistência local (AsyncStorage)
 - Mapa interativo com marcadores
 - Interface em português, inglês e espanhol
@@ -74,7 +75,7 @@ nvm use 22
 cd backend
 cp .env.example .env   # defina ADMIN_USER, a senha e JWT_SECRET (veja "Variáveis de ambiente")
 npm install
-npm run seed           # popula o banco com os 45 lugares iniciais
+npm run seed           # popula o banco com os 105 lugares (seed + lotes de dados)
 npm run dev            # inicia em http://localhost:3001
 ```
 
@@ -120,18 +121,19 @@ docker compose up --build
 ## Testes
 
 ```bash
-cd backend && npm test      # 144 testes, 95% de cobertura de linhas
-cd LazerSP && npm test      # 20 testes
+cd backend && npm test      # 271 testes, 92% de cobertura de linhas
+cd LazerSP && npm test      # 29 testes
 ```
 
 **Backend** (Jest + Supertest, banco SQLite temporário populado pelo seed):
-- cálculo de aberto/fechado, incluindo madrugada, meia-noite, fuso e regressão com os 45 lugares
+- cálculo de aberto/fechado, incluindo vários trechos, turnos, madrugada, fuso e regressão com os 105 lugares
+- lote de dados: campos obrigatórios, coordenadas dentro do município e migração idempotente
 - rotas públicas: filtros, busca, paginação, ordenação, 404 e headers de segurança
 - login: hash bcrypt, compatibilidade com senha em texto puro, JWT e rate limit
 - rotas de admin: autenticação, validação, transações e remoção em cascata
 - tratamento de erros e validação das variáveis de ambiente
 
-**Mobile** (jest-expo + React Native Testing Library): cálculo de distância, resolução da URL da API, contexto de favoritos e o hook `usePlaces` (filtros, debounce, ordenação e erro).
+**Mobile** (jest-expo + React Native Testing Library): cálculo de distância, status e horário dos lugares, link de rotas, resolução da URL da API, contexto de favoritos e o hook `usePlaces` (filtros, debounce, ordenação e erro).
 
 O CI (GitHub Actions) roda os testes do backend e do mobile, o lint do mobile e o build do painel a cada push e pull request.
 
@@ -169,6 +171,27 @@ LazerSP/
         ├── services/         # Comunicação com a API
         └── styles/           # Tema e design tokens
 ```
+
+---
+
+## Dados dos lugares
+
+- `backend/src/database/seed.js`: 45 lugares iniciais, inseridos quando o banco está vazio.
+- `backend/src/database/data/`: lotes adicionados depois (60 lugares em novembro de 2026), com a fonte de cada horário.
+- `backend/src/database/dataMigrations.js`: aplica cada lote uma única vez por banco, na subida do servidor e no `npm run seed`. Lugares com nome já cadastrado são ignorados, e um lugar removido pelo painel não volta.
+
+**Formato do horário de funcionamento** (trechos separados por `;`):
+
+| Exemplo | Significado |
+|---------|-------------|
+| `06:00 - 22:00` | Todos os dias |
+| `Ter-Dom 10:00 - 18:00` | Faixa de dias |
+| `Ter-Sex 10:00 - 21:30; Sáb-Dom 10:00 - 18:30` | Horários diferentes por dia |
+| `Seg 10:00 - 18:00; Qua-Sex 10:00 - 18:00` | Dias isolados |
+| `Seg-Dom 12:00 - 16:00, 18:30 - 00:00` | Dois turnos |
+| `Sex-Sáb 23:00 - 05:00` | Vira a madrugada |
+| `Aberto 24 horas` | Sempre aberto |
+| `Conforme programação` | Sem horário fixo (status "Ver programação") |
 
 ---
 
