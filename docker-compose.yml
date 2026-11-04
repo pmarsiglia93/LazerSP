@@ -18,7 +18,9 @@ services:
       ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:8081}
       # Obrigatórias para o login do painel; defina no .env da raiz (veja .env.example)
       ADMIN_USER: ${ADMIN_USER:?defina ADMIN_USER no .env da raiz}
-      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?defina ADMIN_PASSWORD no .env da raiz}
+      # Use ADMIN_PASSWORD_HASH (recomendado) ou ADMIN_PASSWORD
+      ADMIN_PASSWORD_HASH: ${ADMIN_PASSWORD_HASH:-}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
       JWT_SECRET: ${JWT_SECRET:?defina JWT_SECRET no .env da raiz}
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://localhost:3001/"]
