@@ -1,5 +1,7 @@
-require("dotenv").config({ path: require("path").join(__dirname, "../../.env") });
-const { initDb, getDb } = require("./db");
+if (process.env.NODE_ENV !== "test") {
+  require("dotenv").config({ path: require("path").join(__dirname, "../../.env") });
+}
+const { initDb } = require("./db");
 
 const places = [
   // ─── PARQUES ──────────────────────────────────────────────────────────────
@@ -714,14 +716,20 @@ const places = [
   },
 ];
 
-function seed() {
+/**
+ * Popula o banco com os lugares iniciais, se ele estiver vazio.
+ * @param {{ silent?: boolean }} [options]
+ * @returns {number} quantidade de lugares inseridos (0 se o banco já tinha dados)
+ */
+function seed({ silent = false } = {}) {
+  const log = silent ? () => {} : console.log;
   const db = initDb();
 
   const existingCount = db.prepare("SELECT COUNT(*) as count FROM places").get();
   if (existingCount.count > 0) {
-    console.log(`Banco já possui ${existingCount.count} lugares. Seed ignorado.`);
-    console.log("Para recriar, delete o arquivo lazersp.db e rode novamente.");
-    return;
+    log(`Banco já possui ${existingCount.count} lugares. Seed ignorado.`);
+    log("Para recriar, delete o arquivo lazersp.db e rode novamente.");
+    return 0;
   }
 
   const insertPlace = db.prepare(`
@@ -746,7 +754,14 @@ function seed() {
   });
 
   seedAll();
-  console.log(`✅ Seed concluído! ${places.length} lugares inseridos.`);
+  log(`✅ Seed concluído! ${places.length} lugares inseridos.`);
+  return places.length;
 }
 
-seed();
+// Executa apenas via `npm run seed` / `node src/database/seed.js`,
+// permitindo importar `places` e `seed` nos testes.
+if (require.main === module) {
+  seed();
+}
+
+module.exports = { places, seed };
