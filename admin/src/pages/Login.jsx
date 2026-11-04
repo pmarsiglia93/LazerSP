@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { login } from '../services/api.js'
 
 const C = { primary: '#1E3A5F', secondary: '#FFB703', bg: '#F5F7FA', border: '#E5E7EB', danger: '#E63946', white: '#FFFFFF', text: '#1F2937', textLight: '#6B7280' }
@@ -10,6 +10,8 @@ export default function Login() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const expired = searchParams.get('expirado') === '1'
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -60,6 +62,7 @@ export default function Login() {
             />
           </div>
 
+          {expired && !error && <p style={{ color: C.textLight, fontSize: 13, marginBottom: 16, textAlign: 'center' }}>Sua sessão expirou. Entre novamente.</p>}
           {error && <p style={{ color: C.danger, fontSize: 13, marginBottom: 16, textAlign: 'center' }}>{error}</p>}
 
           <button

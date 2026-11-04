@@ -1,10 +1,15 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { fetchPlaceById, createPlace, updatePlace, geocodeAddress } from '../services/api.js'
+import { fetchPlaceById, fetchCategories, createPlace, updatePlace, geocodeAddress } from '../services/api.js'
 
 const C = { primary: '#1E3A5F', secondary: '#FFB703', bg: '#F5F7FA', border: '#E5E7EB', danger: '#E63946', success: '#2A9D8F', white: '#FFFFFF', text: '#1F2937', textLight: '#6B7280' }
 
-const CATEGORIES = ['Parques', 'Museus', 'Bares', 'Restaurantes', 'Centros Culturais', 'Teatros', 'Cinemas', 'Shoppings', 'Esportes', 'Shows', 'Outros']
+// Sugestões iniciais; as categorias já cadastradas vêm da API e são somadas a estas.
+const DEFAULT_CATEGORIES = ['Parques', 'Museus', 'Bares', 'Restaurantes', 'Baladas', 'Centros Culturais', 'Pontos Turísticos', 'Mercados', 'Teatros', 'Cinemas', 'Shoppings', 'Esportes', 'Shows', 'Outros']
+
+function mergeCategories(...lists) {
+  return [...new Set(lists.flat().filter(c => c && c !== 'Todos'))].sort((a, b) => a.localeCompare(b, 'pt-BR'))
+}
 
 const EMPTY_FORM = {
   name: '', category: 'Parques', address: '', description: '',
@@ -44,6 +49,13 @@ export default function PlaceForm() {
   const [error, setError] = useState(null)
   const [geocoding, setGeocoding] = useState(false)
   const [geocodeResult, setGeocodeResult] = useState(null)
+  const [categories, setCategories] = useState(() => mergeCategories(DEFAULT_CATEGORIES))
+
+  useEffect(() => {
+    fetchCategories()
+      .then(res => setCategories(prev => mergeCategories(prev, res.data)))
+      .catch(() => {}) // mantém as sugestões padrão
+  }, [])
 
   useEffect(() => {
     if (!isEditing) return
@@ -173,7 +185,7 @@ export default function PlaceForm() {
             </Field>
             <Field label="Categoria *">
               <select style={inp} value={form.category} onChange={set('category')}>
-                {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+                {mergeCategories(categories, [form.category]).map(c => <option key={c} value={c}>{c}</option>)}
               </select>
             </Field>
             <Field label="Destaque" hint="Frase curta que aparece no card do app">
