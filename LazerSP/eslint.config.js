@@ -2,9 +2,20 @@
 const { defineConfig } = require('eslint/config');
 const expoConfig = require('eslint-config-expo/flat');
 
+const jestGlobals = Object.fromEntries(
+  ['describe', 'it', 'test', 'expect', 'jest', 'beforeAll', 'beforeEach', 'afterAll', 'afterEach'].map((name) => [
+    name,
+    'readonly',
+  ])
+);
+
 module.exports = defineConfig([
   expoConfig,
   {
     ignores: ['dist/*'],
+  },
+  {
+    files: ['**/__tests__/**/*.js', '**/*.test.js'],
+    languageOptions: { globals: jestGlobals },
   },
 ]);
