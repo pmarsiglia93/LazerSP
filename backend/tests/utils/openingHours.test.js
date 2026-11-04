@@ -1,5 +1,6 @@
 const { isOpenNow } = require("../../src/utils/openingHours");
 const { places } = require("../../src/database/seed");
+const { NOVOS_LUGARES } = require("../../src/database/data/2026-11-novos-lugares");
 
 // Datas com offset explícito de São Paulo (-03:00), para que os testes não
 // dependam do fuso da máquina que roda o Jest.
@@ -105,6 +106,51 @@ describe("isOpenNow", () => {
     });
   });
 
+  describe("vários trechos e turnos", () => {
+    const SESC = "Ter-Sex 10:00 - 21:30; Sáb-Dom 10:00 - 18:30";
+
+    it("usa o horário do trecho do dia (terça 21h: aberto)", () => {
+      expect(isOpenNow(SESC, at("2025-03-25T21:00:00"))).toBe(true);
+    });
+
+    it("usa o horário do trecho do dia (sábado 19h: fechado)", () => {
+      expect(isOpenNow(SESC, at("2025-03-29T19:00:00"))).toBe(false);
+    });
+
+    it("fica fechado no dia que não aparece em nenhum trecho (segunda)", () => {
+      expect(isOpenNow(SESC, at("2025-03-24T12:00:00"))).toBe(false);
+    });
+
+    it("reconhece dia abreviado sozinho (\"Sáb 10:00 - 17:00\")", () => {
+      const BIBLIOTECA = "Seg-Sex 08:30 - 20:30; Sáb 10:00 - 17:00";
+      expect(isOpenNow(BIBLIOTECA, at("2025-03-29T16:00:00"))).toBe(true);
+      expect(isOpenNow(BIBLIOTECA, at("2025-03-30T12:00:00"))).toBe(false);
+    });
+
+    it("aceita dois turnos no mesmo dia, fechando no intervalo", () => {
+      const CANTINA = "Seg-Dom 12:00 - 16:00, 18:30 - 00:00";
+      expect(isOpenNow(CANTINA, at("2025-03-25T13:00:00"))).toBe(true);
+      expect(isOpenNow(CANTINA, at("2025-03-25T17:00:00"))).toBe(false);
+      expect(isOpenNow(CANTINA, at("2025-03-25T23:00:00"))).toBe(true);
+    });
+
+    it("combina trechos com madrugada (sábado até 01h)", () => {
+      const CASA = "Ter 11:30 - 15:30; Qua-Sex 11:30 - 00:00; Sáb 12:00 - 01:00; Dom 12:00 - 20:00";
+      expect(isOpenNow(CASA, at("2025-03-30T00:30:00"))).toBe(true); // madrugada de domingo
+      expect(isOpenNow(CASA, at("2025-03-25T18:00:00"))).toBe(false); // terça à noite
+    });
+
+    it("trata segunda isolada e pula a terça (\"Seg ...; Qua-Sex ...\")", () => {
+      const OLIDO = "Seg 10:00 - 18:00; Qua-Sex 10:00 - 18:00; Sáb-Dom 13:00 - 18:00";
+      expect(isOpenNow(OLIDO, at("2025-03-24T11:00:00"))).toBe(true);
+      expect(isOpenNow(OLIDO, at("2025-03-25T11:00:00"))).toBe(false);
+    });
+
+    it("retorna null para texto sem horário, como \"Conforme programação\"", () => {
+      expect(isOpenNow("Conforme programação", TUESDAY_14H)).toBeNull();
+    });
+  });
+
   describe("fuso horário", () => {
     it("interpreta o horário em São Paulo mesmo com o servidor em UTC", () => {
       // 01:00 UTC de quarta = 22:00 de terça em São Paulo
@@ -116,7 +162,11 @@ describe("isOpenNow", () => {
 
   describe("regressão: dados do seed", () => {
     // Antes da correção, 16 dos 45 lugares nunca apareciam abertos.
-    it.each(places.map((p) => [p.name, p.opening_hours]))(
+    it.each(
+      [...places, ...NOVOS_LUGARES]
+        .filter((p) => p.opening_hours !== "Conforme programação")
+        .map((p) => [p.name, p.opening_hours])
+    )(
       "%s (%s) aparece aberto em algum momento da semana",
       (_name, hours) => {
         const start = at("2025-03-23T00:00:00").getTime(); // domingo

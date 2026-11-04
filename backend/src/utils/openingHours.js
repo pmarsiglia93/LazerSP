@@ -34,7 +34,9 @@ const WEEKDAY_EN = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
 
 const dayKeys = Object.keys(DAY_ABBR).join("|");
 const DAY_RANGE_RX = new RegExp(`(${dayKeys})\\s*-\\s*(${dayKeys})`);
-const TIME_RANGE_RX = /(\d{1,2}:\d{2})\s*[-–]\s*(\d{1,2}:\d{2})/;
+// Abreviação isolada ("Sáb 10:00 - 17:00"), sem casar com "Domingos" ou "Segunda"
+const DAY_SINGLE_RX = new RegExp(`(?<!\\p{L})(${dayKeys})(?!\\p{L})`, "gu");
+const TIME_RANGE_RX = /(\d{1,2}:\d{2})\s*[-–]\s*(\d{1,2}:\d{2})/g;
 
 const formatter = new Intl.DateTimeFormat("en-US", {
   timeZone: TIME_ZONE,
@@ -65,13 +67,13 @@ function parseTime(str) {
 }
 
 /**
- * Dias da semana em que o lugar abre. Retorna null quando a string não
+ * Dias da semana de um trecho do horário. Retorna null quando o trecho não
  * menciona dias (interpretado como "todos os dias").
- * @param {string} openingHours
+ * @param {string} text
  * @returns {Set<number>|null}
  */
-function parseDays(openingHours) {
-  const range = openingHours.match(DAY_RANGE_RX);
+function parseDays(text) {
+  const range = text.match(DAY_RANGE_RX);
   if (range) {
     const start = DAY_ABBR[range[1]];
     const end = DAY_ABBR[range[2]];
@@ -84,7 +86,10 @@ function parseDays(openingHours) {
     return days;
   }
 
-  const lower = openingHours.toLowerCase();
+  const singles = [...text.matchAll(DAY_SINGLE_RX)].map((m) => DAY_ABBR[m[1]]);
+  if (singles.length > 0) return new Set(singles);
+
+  const lower = text.toLowerCase();
   for (const [name, dayNum] of Object.entries(DAY_NAMES)) {
     if (lower.includes(name)) return new Set([dayNum]);
   }
@@ -93,18 +98,37 @@ function parseDays(openingHours) {
 }
 
 /**
+ * Converte um trecho ("Seg-Dom 12:00 - 16:00, 18:30 - 00:00") em dias e
+ * intervalos em minutos. Retorna null se o trecho não tiver horário.
+ */
+function parseSegment(text) {
+  const ranges = [...text.matchAll(TIME_RANGE_RX)].map((m) => {
+    const open = parseTime(m[1]);
+    let close = parseTime(m[2]);
+    // "00:00" e "24:00" como fechamento significam meia-noite do mesmo dia
+    if (close === 0 || close >= MINUTES_PER_DAY) close = MINUTES_PER_DAY;
+    return [open, close];
+  });
+  if (ranges.length === 0) return null;
+  return { days: parseDays(text), ranges };
+}
+
+/**
  * Determina se um lugar está aberto no instante informado.
- * Retorna true, false ou null (quando não foi possível interpretar o formato).
+ * Retorna true, false ou null (quando não foi possível interpretar o formato,
+ * como em "Conforme programação").
  *
- * Formatos suportados:
+ * Formatos suportados (trechos separados por ";"):
  *   - "Aberto 24 horas"
- *   - "05:00 - 24:00"                          (todos os dias)
- *   - "Ter-Dom 10:00 - 18:00"                  (range de dias + horário)
+ *   - "05:00 - 24:00"                                   (todos os dias)
+ *   - "Ter-Dom 10:00 - 18:00"                           (range de dias)
  *   - "Seg-Sex 12:00 - 18:00 (observações)"
- *   - "Feiras aos domingos 09:00 - 18:00"      (dia individual)
- *   - "Seg-Dom 12:00 - 00:00"                  (fecha à meia-noite)
- *   - "Sex-Sáb 23:00 - 05:00"                  (vira a madrugada: o horário após
- *                                               a meia-noite pertence ao dia anterior)
+ *   - "Feiras aos domingos 09:00 - 18:00"               (dia por extenso)
+ *   - "Ter-Sex 10:00 - 21:30; Sáb-Dom 10:00 - 18:30"    (horários por dia)
+ *   - "Seg-Dom 12:00 - 16:00, 18:30 - 00:00"            (dois turnos)
+ *   - "Sex-Sáb 23:00 - 05:00"                           (vira a madrugada: o horário
+ *                                                        após a meia-noite pertence
+ *                                                        ao dia anterior)
  *
  * @param {string} openingHours
  * @param {Date} [now] instante de referência (padrão: agora)
@@ -115,30 +139,21 @@ function isOpenNow(openingHours, now = new Date()) {
 
   if (/24\s*horas?/i.test(openingHours)) return true;
 
-  const timeMatch = openingHours.match(TIME_RANGE_RX);
-  if (!timeMatch) return null;
-
-  const openMin = parseTime(timeMatch[1]);
-  let closeMin = parseTime(timeMatch[2]);
-  // "00:00" e "24:00" como fechamento significam meia-noite do mesmo dia
-  if (closeMin === 0 || closeMin >= MINUTES_PER_DAY) closeMin = MINUTES_PER_DAY;
-
-  const days = parseDays(openingHours);
-  const opensOn = (day) => days === null || days.has(day);
+  const segments = openingHours.split(";").map(parseSegment).filter(Boolean);
+  if (segments.length === 0) return null;
 
   const { day, minutes } = getLocalTime(now);
   const yesterday = (day + 6) % 7;
 
-  if (closeMin > openMin) {
-    return opensOn(day) && minutes >= openMin && minutes < closeMin;
-  }
-
-  // Atravessa a meia-noite: aberto do horário de abertura até o fim do dia
-  // ou, no dia seguinte, da meia-noite até o fechamento.
-  return (
-    (opensOn(day) && minutes >= openMin) ||
-    (opensOn(yesterday) && minutes < closeMin)
-  );
+  return segments.some(({ days, ranges }) => {
+    const opensOn = (d) => days === null || days.has(d);
+    return ranges.some(([open, close]) => {
+      if (close > open) return opensOn(day) && minutes >= open && minutes < close;
+      // Atravessa a meia-noite: aberto do horário de abertura até o fim do
+      // dia ou, no dia seguinte, da meia-noite até o fechamento.
+      return (opensOn(day) && minutes >= open) || (opensOn(yesterday) && minutes < close);
+    });
+  });
 }
 
 module.exports = { isOpenNow, TIME_ZONE };
