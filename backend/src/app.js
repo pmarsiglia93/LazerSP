@@ -1,4 +1,5 @@
-require("dotenv").config();
+// Os testes controlam o próprio ambiente e não leem o .env local
+if (process.env.NODE_ENV !== "test") require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
@@ -9,8 +10,15 @@ const adminRouter = require("./routes/admin");
 const { notFound, errorHandler } = require("./middleware/errorHandler");
 const morgan = require("morgan");
 const helmet = require("helmet");
+const rateLimit = require("express-rate-limit").default;
+const { isProduction, getAllowedOrigins } = require("./config");
 
 const app = express();
+
+// Atrás do proxy do Railway, o IP real do cliente vem em X-Forwarded-For.
+// Necessário para o rate limit contar por cliente, e não pelo proxy.
+const trustProxy = process.env.TRUST_PROXY ?? (isProduction() ? "1" : "0");
+app.set("trust proxy", /^\d+$/.test(trustProxy) ? Number(trustProxy) : trustProxy);
 
 // Headers de segurança. A CSP libera o que o painel /admin usa fora da origem:
 // imagens externas (pré-visualização da foto) e a geocodificação no Nominatim.
@@ -29,16 +37,26 @@ app.use(
 );
 
 const corsOptions = {
-  origin:
-    process.env.NODE_ENV === "production"
-      ? (process.env.ALLOWED_ORIGINS || "").split(",").map((o) => o.trim()).filter(Boolean)
-      : true,
+  origin: isProduction() ? getAllowedOrigins() : true,
   methods: ["GET", "POST", "PUT", "DELETE"],
   optionsSuccessStatus: 200,
 };
 app.use(cors(corsOptions));
-app.use(express.json());
-app.use(morgan(process.env.NODE_ENV === "production" ? "combined" : "dev"));
+app.use(express.json({ limit: "100kb" }));
+if (process.env.NODE_ENV !== "test") {
+  app.use(morgan(isProduction() ? "combined" : "dev"));
+}
+
+// Limite generoso para a API pública: protege contra abuso sem afetar o uso
+// normal do app (várias pessoas podem compartilhar o mesmo IP na rede móvel).
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: Number(process.env.API_RATE_LIMIT) || 1000,
+  standardHeaders: "draft-8",
+  legacyHeaders: false,
+  message: { success: false, error: "Muitas requisições. Tente novamente em alguns minutos." },
+});
+app.use("/api", apiLimiter);
 
 initDb();
 

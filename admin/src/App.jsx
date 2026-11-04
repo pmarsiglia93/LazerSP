@@ -2,10 +2,12 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import Login from './pages/Login.jsx'
 import PlacesList from './pages/PlacesList.jsx'
 import PlaceForm from './pages/PlaceForm.jsx'
+import { hasValidToken, clearToken } from './services/api.js'
 
 function PrivateRoute({ children }) {
-  const token = localStorage.getItem('admin_token')
-  return token ? children : <Navigate to="/admin/login" replace />
+  if (hasValidToken()) return children
+  clearToken()
+  return <Navigate to="/admin/login" replace />
 }
 
 export default function App() {

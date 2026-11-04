@@ -5,8 +5,11 @@ const {
   getPlaceById,
   getCategories,
 } = require("../controllers/placesController");
+const { validateId } = require("../middleware/validateId");
 
-// GET /api/categories  (deve vir antes de /:id para não conflitar)
+router.param("id", validateId);
+
+// GET /api/places/categories  (deve vir antes de /:id para não conflitar)
 router.get("/categories", getCategories);
 
 // GET /api/places

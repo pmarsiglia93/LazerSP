@@ -7,6 +7,7 @@ import {
 } from "react";
 import * as Linking from "expo-linking";
 import * as Location from "expo-location";
+import { haversineKm } from "../utils/distance";
 
 const LocationContext = createContext(null);
 
@@ -58,23 +59,9 @@ export function LocationProvider({ children }) {
     requestLocation();
   }, [requestLocation]);
 
-  /**
-   * Calcula distância em km usando a fórmula de Haversine
-   */
+  /** Distância em km da posição atual até o ponto, ou null sem localização */
   const getDistance = useCallback(
-    (lat, lon) => {
-      if (!location) return null;
-      const R = 6371;
-      const dLat = ((lat - location.latitude) * Math.PI) / 180;
-      const dLon = ((lon - location.longitude) * Math.PI) / 180;
-      const a =
-        Math.sin(dLat / 2) ** 2 +
-        Math.cos((location.latitude * Math.PI) / 180) *
-          Math.cos((lat * Math.PI) / 180) *
-          Math.sin(dLon / 2) ** 2;
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-      return R * c;
-    },
+    (lat, lon) => (location ? haversineKm(location, { latitude: lat, longitude: lon }) : null),
     [location]
   );
 

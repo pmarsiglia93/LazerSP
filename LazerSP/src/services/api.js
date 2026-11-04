@@ -2,38 +2,41 @@ import Constants from "expo-constants";
 import axios from "axios";
 import { Platform } from "react-native";
 
+/** API de produção (HTTPS). Usada nos builds quando EXPO_PUBLIC_API_URL não está definida. */
+export const PRODUCTION_API_URL = "https://lazersp-production.up.railway.app/api";
+
 /**
  * Resolve a URL base da API na seguinte ordem de prioridade:
- * 1. Variável de ambiente EXPO_PUBLIC_API_URL (.env) — mais confiável
- * 2. Host do Metro bundler — funciona em modo LAN com celular na mesma rede
- * 3. Fallback por plataforma (emulador Android / web / iOS simulator)
+ * 1. Variável de ambiente EXPO_PUBLIC_API_URL (.env local ou `env` do perfil no eas.json)
+ * 2. Em desenvolvimento: host do Metro bundler (celular na mesma rede) e,
+ *    por fim, emulador Android ou localhost
+ * 3. Em builds de release: a API de produção. Builds de release bloqueiam
+ *    HTTP sem TLS, então nunca devem cair em um endereço local.
  */
-function getBaseUrl() {
-  // 1. Variável de ambiente definida no .env
-  if (process.env.EXPO_PUBLIC_API_URL) {
-    return process.env.EXPO_PUBLIC_API_URL;
-  }
+export function getBaseUrl({
+  envUrl = process.env.EXPO_PUBLIC_API_URL,
+  isDev = __DEV__,
+  hostUri = Constants.expoConfig?.hostUri ?? Constants.manifest?.debuggerHost,
+  platform = Platform.OS,
+} = {}) {
+  if (envUrl) return envUrl;
 
-  // 2. Host do Metro bundler (modo LAN — celular na mesma rede)
-  const debuggerHost =
-    Constants.expoConfig?.hostUri ?? Constants.manifest?.debuggerHost;
+  if (!isDev) return PRODUCTION_API_URL;
 
-  if (debuggerHost) {
-    const ip = debuggerHost.split(":")[0];
-    // Ignora se for domínio ngrok (modo tunnel)
+  if (hostUri) {
+    const ip = hostUri.split(":")[0];
+    // Ignora domínios do modo tunnel (ngrok / exp.direct)
     if (!ip.includes("ngrok") && !ip.includes("exp.direct")) {
       return `http://${ip}:3001/api`;
     }
   }
 
-  // 3. Fallback por plataforma
-  if (Platform.OS === "android") {
-    return "http://10.0.2.2:3001/api"; // emulador Android
-  }
-
-  return "http://localhost:3001/api"; // web / simulador iOS
+  return platform === "android"
+    ? "http://10.0.2.2:3001/api" // emulador Android
+    : "http://localhost:3001/api"; // web / simulador iOS
 }
 
+// eslint-disable-next-line import/no-named-as-default-member
 const api = axios.create({
   baseURL: getBaseUrl(),
   timeout: 10000,

@@ -31,7 +31,7 @@ export default function DetailsScreen({ route, navigation }) {
   const [loading, setLoading] = useState(!initialPlace);
   const [error, setError] = useState(null);
 
-  const { isFavorite, toggleFavorite } = useFavorites();
+  const { isFavorite, toggleFavorite, syncFavorites } = useFavorites();
   const { getDistance } = useLocation();
   const { isVisited, getVisit, saveVisit, toggleVisited } = useVisits();
 
@@ -41,22 +41,33 @@ export default function DetailsScreen({ route, navigation }) {
   const [noteText, setNoteText] = useState("");
 
   useEffect(() => {
+    let active = true;
     fetchPlaceById(placeId)
-      .then((res) => setPlace(res.data))
-      .catch(() => {
-        if (!initialPlace) setError(t("details.load_error"));
+      .then((res) => {
+        if (!active) return;
+        setPlace(res.data);
+        syncFavorites([res.data]);
       })
-      .finally(() => setLoading(false));
-  }, [placeId]);
+      .catch(() => {
+        if (active && !initialPlace) setError(true);
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [placeId, initialPlace, syncFavorites]);
 
   useEffect(() => {
     if (place?.name) navigation.setOptions({ title: place.name });
   }, [place?.name, navigation]);
 
+  const savedNote = visit?.note || "";
   useEffect(() => {
-    setNoteText(visit?.note || "");
+    setNoteText(savedNote);
     setEditingNote(false);
-  }, [visited]);
+  }, [visited, savedNote]);
 
   if (loading && !place) {
     return (
@@ -70,7 +81,7 @@ export default function DetailsScreen({ route, navigation }) {
     return (
       <View style={styles.centered}>
         <Ionicons name="alert-circle-outline" size={48} color={theme.colors.danger} />
-        <Text style={styles.errorText}>{error}</Text>
+        <Text style={styles.errorText}>{t("details.load_error")}</Text>
         <TouchableOpacity style={styles.retryButton} onPress={() => navigation.goBack()}>
           <Text style={styles.retryButtonText}>{t("details.back")}</Text>
         </TouchableOpacity>

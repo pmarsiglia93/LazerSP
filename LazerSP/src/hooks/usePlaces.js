@@ -2,6 +2,8 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { AppState } from "react-native";
 import { fetchPlaces, fetchCategories } from "../services/placesService";
 import { useLocation } from "../context/LocationContext";
+import { useFavorites } from "../context/FavoritesContext";
+import { sortByDistance } from "../utils/distance";
 
 export function usePlaces() {
   const [places, setPlaces] = useState([]);
@@ -13,6 +15,7 @@ export function usePlaces() {
   const [onlyFree, setOnlyFree] = useState(false);
 
   const { getDistance, resolved: locationResolved } = useLocation();
+  const { syncFavorites } = useFavorites();
   const debounceRef = useRef(null);
 
   // Carrega categorias uma vez
@@ -40,20 +43,16 @@ export function usePlaces() {
           distance: getDistance(place.latitude, place.longitude),
         }));
 
-        placesWithDistance.sort((a, b) => {
-          if (a.distance === null) return 1;
-          if (b.distance === null) return -1;
-          return a.distance - b.distance;
-        });
-
-        setPlaces(placesWithDistance);
-      } catch (err) {
+        setPlaces(sortByDistance(placesWithDistance));
+        // Mantém horário, status e demais dados dos favoritos atualizados
+        syncFavorites(res.data);
+      } catch {
         setError("Não foi possível carregar os lugares. Verifique sua conexão.");
       } finally {
         setLoading(false);
       }
     },
-    [getDistance]
+    [getDistance, syncFavorites]
   );
 
   // Aguarda localização resolver antes de carregar (evita reorganização)

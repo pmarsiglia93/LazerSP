@@ -71,7 +71,8 @@
   "map": {
     "loading": "Loading map...",
     "title": "Map of nearby places",
-    "subtitle": "Tap a marker then tap \"More info\" to see the place."
+    "subtitle": "Tap a marker then tap \"More info\" to see the place.",
+    "load_error": "Could not load the places on the map."
   },
   "nav": {
     "explore": "Explore",

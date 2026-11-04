@@ -30,3 +30,6 @@ npm-debug.*
 backend/tests/*.db
 backend/tests/*.db-shm
 backend/tests/*.db-wal
+
+# Cobertura de testes
+coverage/

@@ -1,5 +1,7 @@
 # LazerSP
 
+[![CI](https://github.com/pmarsiglia93/LazerSP/actions/workflows/ci.yml/badge.svg)](https://github.com/pmarsiglia93/LazerSP/actions/workflows/ci.yml)
+
 Guia móvel de lazer urbano para a cidade de São Paulo.
 
 Projeto desenvolvido como Trabalho de Conclusão de Curso do **MBA em Engenharia de Software da USP/ESALQ**, aprovado com nota 10 em julho de 2026. Selecionado para o programa **Sebrae Startup Experience (ESX) 2026**.
@@ -13,7 +15,7 @@ O repositório é um monorepo com três aplicações:
 | Pasta | Aplicação | Stack |
 |-------|-----------|-------|
 | `LazerSP/` | App mobile | React Native 0.81 + Expo SDK 54 + React 19 |
-| `backend/` | API REST | Node.js 20 + Express + SQLite (better-sqlite3) + JWT |
+| `backend/` | API REST | Node.js 22 + Express + SQLite (better-sqlite3) + JWT + zod |
 | `admin/` | Painel administrativo | React 18 + Vite |
 
 Infraestrutura: Docker + Docker Compose. Distribuído hoje como APK Android; a versão iOS ainda não foi validada em dispositivo.
@@ -27,7 +29,7 @@ Infraestrutura: Docker + Docker Compose. Distribuído hoje como APK Android; a v
 - Filtro por categoria (Parques, Museus, Bares, Restaurantes, Baladas...)
 - Filtro de locais gratuitos
 - Ordenação por proximidade via geolocalização (fórmula de Haversine, calculada no aparelho)
-- Status de aberto/fechado calculado pelo horário de funcionamento
+- Status de aberto/fechado calculado pelo horário de funcionamento, incluindo horários que viram a madrugada, sempre no fuso de São Paulo
 - Tela de detalhes com avaliação, horário e preço
 - Botões "Como chegar" (Google Maps), "Ir de Uber" e Instagram, com deep link para o app ou site
 - Favoritos e registro de visitas com persistência local (AsyncStorage)
@@ -36,7 +38,7 @@ Infraestrutura: Docker + Docker Compose. Distribuído hoje como APK Android; a v
 - Atualização automática ao voltar ao primeiro plano
 
 **Painel administrativo**
-- Login com JWT
+- Login com JWT (senha com hash bcrypt e limite de tentativas)
 - Cadastro, edição e remoção de lugares
 - Geocodificação de endereço via OpenStreetMap (Nominatim)
 
@@ -44,7 +46,7 @@ Infraestrutura: Docker + Docker Compose. Distribuído hoje como APK Android; a v
 
 ## Pré-requisitos
 
-- [Node.js v20](https://nodejs.org/)
+- [Node.js v22](https://nodejs.org/)
 - [nvm](https://github.com/nvm-sh/nvm) (recomendado para gerenciar versões do Node)
 - [Expo Go](https://expo.dev/go) no celular para testar em dispositivo físico
 
@@ -62,15 +64,15 @@ cd LazerSP
 ### 2. Configure a versão do Node
 
 ```bash
-nvm install 20
-nvm use 20
+nvm install 22
+nvm use 22
 ```
 
 ### 3. Backend
 
 ```bash
 cd backend
-cp .env.example .env   # defina ADMIN_USER, ADMIN_PASSWORD e JWT_SECRET
+cp .env.example .env   # defina ADMIN_USER, a senha e JWT_SECRET (veja "Variáveis de ambiente")
 npm install
 npm run seed           # popula o banco com os 45 lugares iniciais
 npm run dev            # inicia em http://localhost:3001
@@ -106,7 +108,7 @@ Por padrão o painel usa o backend local (`http://localhost:3001`). Para apontar
 ## Como rodar com Docker
 
 ```bash
-cp .env.example .env   # defina ADMIN_USER, ADMIN_PASSWORD e JWT_SECRET
+cp .env.example .env   # defina ADMIN_USER, a senha e JWT_SECRET
 docker compose up --build
 ```
 
@@ -118,13 +120,20 @@ docker compose up --build
 ## Testes
 
 ```bash
-cd backend
-npm test
+cd backend && npm test      # 144 testes, 95% de cobertura de linhas
+cd LazerSP && npm test      # 20 testes
 ```
 
-24 testes automatizados (Jest 29 + Supertest):
-- 12 testes unitários do utilitário de horário (`isOpenNow`)
-- 12 testes de integração das rotas públicas da API (estrutura, validação, códigos HTTP)
+**Backend** (Jest + Supertest, banco SQLite temporário populado pelo seed):
+- cálculo de aberto/fechado, incluindo madrugada, meia-noite, fuso e regressão com os 45 lugares
+- rotas públicas: filtros, busca, paginação, ordenação, 404 e headers de segurança
+- login: hash bcrypt, compatibilidade com senha em texto puro, JWT e rate limit
+- rotas de admin: autenticação, validação, transações e remoção em cascata
+- tratamento de erros e validação das variáveis de ambiente
+
+**Mobile** (jest-expo + React Native Testing Library): cálculo de distância, resolução da URL da API, contexto de favoritos e o hook `usePlaces` (filtros, debounce, ordenação e erro).
+
+O CI (GitHub Actions) roda os testes do backend e do mobile, o lint do mobile e o build do painel a cada push e pull request.
 
 ---
 
@@ -201,14 +210,19 @@ Rotas com JWT exigem o header `Authorization: Bearer <token>`.
 | `DB_PATH` | Não | Caminho do arquivo SQLite |
 | `ALLOWED_ORIGINS` | Em produção | Origens liberadas no CORS, separadas por vírgula |
 | `ADMIN_USER` | Sim, para o painel | Usuário do painel administrativo |
-| `ADMIN_PASSWORD` | Sim, para o painel | Senha do painel administrativo |
+| `ADMIN_PASSWORD_HASH` | Sim, para o painel | Hash bcrypt da senha. Gere com `npm run hash-password -- "sua-senha"` |
+| `ADMIN_PASSWORD` | Não | Senha em texto puro; aceita por compatibilidade quando não há hash, com aviso no log |
 | `JWT_SECRET` | Sim, para o painel | Segredo de assinatura do JWT (mínimo de 32 caracteres aleatórios) |
+| `TRUST_PROXY` | Não | Saltos de proxy confiáveis para identificar o IP do cliente (padrão: 1 em produção) |
+| `API_RATE_LIMIT` | Não | Requisições por IP a cada 15 minutos na API (padrão: 1000) |
+
+Sem a configuração do painel, a API pública continua funcionando e o login responde 503. Os problemas de configuração aparecem no log na subida do servidor.
 
 **App mobile (`LazerSP/.env`)**
 
 | Variável | Descrição |
 |----------|-----------|
-| `EXPO_PUBLIC_API_URL` | URL base da API, ex: `http://SEU_IP_LOCAL:3001/api` |
+| `EXPO_PUBLIC_API_URL` | URL base da API, ex: `http://SEU_IP_LOCAL:3001/api`. Nos builds do EAS vem do `eas.json`; sem ela, builds de release usam a API de produção em HTTPS |
 
 **Painel administrativo (opcional)**
 
@@ -220,9 +234,9 @@ Rotas com JWT exigem o header `Authorization: Bearer <token>`.
 
 ## Limitações conhecidas
 
-- O app mobile e o painel administrativo ainda não têm testes automatizados.
+- O painel administrativo ainda não tem testes automatizados.
 - A versão iOS não foi validada em dispositivo.
-- O cálculo de aberto/fechado ainda não trata horários que atravessam a meia-noite (ex: `22:00 - 05:00`).
+- A ordenação por proximidade é feita no aparelho sobre a página retornada pela API (até 50 lugares por padrão).
 
 ---
 

@@ -71,7 +71,8 @@
   "map": {
     "loading": "Cargando mapa...",
     "title": "Mapa de lugares cercanos",
-    "subtitle": "Toca un marcador y luego \"Más info\" para ver el lugar."
+    "subtitle": "Toca un marcador y luego \"Más info\" para ver el lugar.",
+    "load_error": "No se pudieron cargar los lugares del mapa."
   },
   "nav": {
     "explore": "Explorar",
