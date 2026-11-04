@@ -3,11 +3,12 @@ import { Image } from "expo-image";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useTranslation } from "react-i18next";
 import theme from "../styles/theme";
-import { getStatusStyle, hasRating } from "../utils/place";
+import { displayRating, getStatusStyle } from "../utils/place";
 
 export default function PlaceCard({ place, onPress, onFavoritePress, favorite, visited }) {
   const { t } = useTranslation();
   const status = getStatusStyle(place);
+  const rating = displayRating(place);
   const distanceLabel =
     place.distance !== null && place.distance !== undefined
       ? `${place.distance.toFixed(1)} km`
@@ -66,10 +67,10 @@ export default function PlaceCard({ place, onPress, onFavoritePress, favorite, v
 
         {/* Meta: rating + preço */}
         <View style={styles.metaRow}>
-          {hasRating(place) && (
+          {rating && (
             <>
               <View style={styles.metaItem}>
-                <Text style={styles.rating}>⭐ {place.rating}</Text>
+                <Text style={styles.rating}>⭐ {rating}</Text>
               </View>
               <View style={styles.metaDivider} />
             </>

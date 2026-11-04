@@ -4,8 +4,22 @@ import React, {
   useState,
   useEffect,
   useCallback,
+  useRef,
 } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+
+import { useOptionalAuth } from "./AuthContext";
+import {
+  addRemoteFavorite,
+  fetchRemoteFavorites,
+  removeRemoteFavorite,
+  replaceRemoteFavorites,
+} from "../services/userService";
+import { mergeFavorites } from "../utils/sync";
+
+const logSyncError = (error) => {
+  if (__DEV__) console.warn("[Favoritos] falha ao sincronizar:", error?.message);
+};
 
 const STORAGE_KEY = "@lazersp:favorites";
 
@@ -33,16 +47,46 @@ export function FavoritesProvider({ children }) {
     );
   }, [favorites, loaded]);
 
+  // Com login, junta os favoritos do aparelho com os da conta (união)
+  const auth = useOptionalAuth();
+  const userId = auth?.status === "signedIn" ? auth.user?.id ?? null : null;
+  const userIdRef = useRef(userId);
+  const favoritesRef = useRef(favorites);
+  userIdRef.current = userId;
+  favoritesRef.current = favorites;
+
+  useEffect(() => {
+    if (!loaded || !userId) return;
+    let active = true;
+    (async () => {
+      try {
+        const remote = await fetchRemoteFavorites();
+        if (!active) return;
+        const merged = mergeFavorites(favoritesRef.current, remote);
+        setFavorites(merged);
+        await replaceRemoteFavorites(merged.map((p) => p.id));
+      } catch (error) {
+        logSyncError(error);
+      }
+    })();
+    return () => {
+      active = false;
+    };
+  }, [loaded, userId]);
+
   const isFavorite = useCallback(
     (placeId) => favorites.some((p) => p.id === placeId),
     [favorites]
   );
 
   const toggleFavorite = useCallback((place) => {
-    setFavorites((prev) => {
-      const exists = prev.some((p) => p.id === place.id);
-      return exists ? prev.filter((p) => p.id !== place.id) : [...prev, place];
-    });
+    const exists = favoritesRef.current.some((p) => p.id === place.id);
+    setFavorites((prev) =>
+      exists ? prev.filter((p) => p.id !== place.id) : [...prev.filter((p) => p.id !== place.id), place]
+    );
+    if (userIdRef.current) {
+      (exists ? removeRemoteFavorite(place.id) : addRemoteFavorite(place.id)).catch(logSyncError);
+    }
   }, []);
 
   /**

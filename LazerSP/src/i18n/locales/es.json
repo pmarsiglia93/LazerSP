@@ -81,7 +81,8 @@
     "favorites": "Favoritos",
     "map": "Mapa",
     "details": "Detalles",
-    "app_title": "LazerSP"
+    "app_title": "LazerSP",
+    "profile": "Perfil"
   },
   "search": {
     "placeholder": "Buscar parques, museos, mercados..."
@@ -99,5 +100,54 @@
     "Teatros": "Teatros",
     "Cinemas": "Cines",
     "Esportes": "Deportes"
+  },
+  "auth": {
+    "sign_in_google": "Iniciar sesión con Google",
+    "unavailable": "El inicio de sesión con Google está disponible en la app instalada desde la tienda o el APK.",
+    "error_title": "No se pudo iniciar sesión",
+    "error_text": "Inténtalo de nuevo en unos instantes. Si el problema continúa, revisa tu conexión."
+  },
+  "profile": {
+    "signed_out_title": "Inicia sesión para llevar tus lugares contigo",
+    "signed_out_text": "Iniciar sesión es opcional: la app sigue funcionando sin cuenta.",
+    "benefit_sync": "Favoritos y visitas guardados en tu cuenta",
+    "benefit_reviews": "Valora lugares y ayuda a otras personas a elegir",
+    "benefit_devices": "Los mismos datos en cualquier dispositivo",
+    "optional_note": "Solo usamos tu nombre, correo y foto de Google. Puedes eliminar tu cuenta cuando quieras.",
+    "synced": "Favoritos y visitas sincronizados",
+    "favorites_count_one": "{{count}} favorito",
+    "favorites_count_other": "{{count}} favoritos",
+    "visits_count_one": "{{count}} lugar visitado",
+    "visits_count_other": "{{count}} lugares visitados",
+    "sign_out": "Cerrar sesión",
+    "delete_account": "Eliminar cuenta",
+    "delete_title": "¿Eliminar cuenta?",
+    "delete_text": "Tu cuenta, valoraciones y datos sincronizados se borrarán del servidor. Los favoritos guardados en este dispositivo se mantienen.",
+    "delete_confirm": "Eliminar",
+    "delete_error": "No se pudo eliminar la cuenta. Inténtalo de nuevo.",
+    "delete_note": "La eliminación borra del servidor tu cuenta, valoraciones, favoritos y visitas."
+  },
+  "reviews": {
+    "title": "Valoraciones de la comunidad",
+    "count_one": "{{count}} valoración",
+    "count_other": "{{count}} valoraciones",
+    "empty": "Aún no hay valoraciones. Sé la primera persona en valorar.",
+    "load_error": "No se pudieron cargar las valoraciones. Toca para intentarlo de nuevo.",
+    "load_more": "Ver más valoraciones",
+    "write": "Escribir valoración",
+    "sign_in_to_rate": "Inicia sesión con Google para valorar",
+    "your_rating": "Tu nota",
+    "your_review": "Tu valoración",
+    "comment_placeholder": "Cuéntanos cómo fue (opcional)",
+    "publish": "Publicar",
+    "public_hint": "Tu valoración se muestra a todos con tu nombre y la inicial del apellido.",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "delete_title": "¿Eliminar valoración?",
+    "delete_text": "Dejará de mostrarse a otras personas.",
+    "delete_confirm": "Eliminar",
+    "hidden_note": "Esta valoración fue ocultada por la moderación y no se muestra a otras personas.",
+    "save_error": "No se pudo guardar. Inténtalo de nuevo.",
+    "too_many": "Enviaste demasiadas valoraciones en poco tiempo. Inténtalo más tarde."
   }
 }

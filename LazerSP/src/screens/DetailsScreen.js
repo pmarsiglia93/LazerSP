@@ -19,7 +19,8 @@ import { useLocation } from "../context/LocationContext";
 import { useVisits } from "../context/VisitsContext";
 import { fetchPlaceById } from "../services/placesService";
 import theme from "../styles/theme";
-import { directionsUrl, formatOpeningHours, getStatusStyle, hasRating } from "../utils/place";
+import { directionsUrl, displayRating, formatOpeningHours, getStatusStyle } from "../utils/place";
+import ReviewsSection from "../components/ReviewsSection";
 
 const DATE_LOCALES = { pt: "pt-BR", en: "en-US", es: "es-ES" };
 const RATING_KEYS = ["", "details.rating_1", "details.rating_2", "details.rating_3", "details.rating_4", "details.rating_5"];
@@ -92,6 +93,7 @@ export default function DetailsScreen({ route, navigation }) {
 
   const favorite = isFavorite(place.id);
   const status = getStatusStyle(place);
+  const rating = displayRating(place);
   const distance = getDistance(place.latitude, place.longitude);
   const distanceLabel = distance !== null ? `${distance.toFixed(1)} km ${t("details.from_you")}` : null;
   const dateLocale = DATE_LOCALES[i18n.language] || "pt-BR";
@@ -126,7 +128,7 @@ export default function DetailsScreen({ route, navigation }) {
         <View style={styles.infoBox}>
           <View style={styles.infoItem}>
             <Text style={styles.infoLabel}>{t("details.rating")}</Text>
-            <Text style={styles.infoValue}>{hasRating(place) ? `⭐ ${place.rating}` : t("details.no_rating")}</Text>
+            <Text style={styles.infoValue}>{rating ? `⭐ ${rating}` : t("details.no_rating")}</Text>
           </View>
           <View style={styles.infoSeparator} />
           <View style={styles.infoItem}>
@@ -294,6 +296,8 @@ export default function DetailsScreen({ route, navigation }) {
             </View>
           </>
         )}
+
+        <ReviewsSection placeId={place.id} />
 
         <View style={{ height: theme.spacing.xl }} />
       </View>
