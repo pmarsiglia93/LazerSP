@@ -22,7 +22,7 @@ export default function SplashScreen({ navigation }) {
         useNativeDriver: true,
       }),
     ]).start();
-  }, []);
+  }, [fadeAnim, slideAnim]);
 
   return (
     <View style={styles.container}>

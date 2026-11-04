@@ -45,9 +45,28 @@ export function FavoritesProvider({ children }) {
     });
   }, []);
 
+  /**
+   * Substitui os dados salvos dos favoritos pelos recebidos da API
+   * (horário, status, avaliação...). Lugares que não vieram na lista ficam como estão.
+   */
+  const syncFavorites = useCallback((freshPlaces) => {
+    if (!Array.isArray(freshPlaces) || freshPlaces.length === 0) return;
+    const byId = new Map(freshPlaces.map((p) => [p.id, p]));
+    setFavorites((prev) => {
+      let changed = false;
+      const next = prev.map((fav) => {
+        const fresh = byId.get(fav.id);
+        if (!fresh) return fav;
+        changed = true;
+        return { ...fav, ...fresh };
+      });
+      return changed ? next : prev;
+    });
+  }, []);
+
   return (
     <FavoritesContext.Provider
-      value={{ favorites, isFavorite, toggleFavorite, loaded }}
+      value={{ favorites, isFavorite, toggleFavorite, syncFavorites, loaded }}
     >
       {children}
     </FavoritesContext.Provider>

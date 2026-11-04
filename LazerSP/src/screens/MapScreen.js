@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
-import { useEffect, useMemo, useState } from "react";
-import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import { useTranslation } from "react-i18next";
 
@@ -13,13 +13,20 @@ export default function MapScreen({ navigation }) {
   const { location, error: locationError, getDistance } = useLocation();
   const [places, setPlaces] = useState([]);
   const [loadingPlaces, setLoadingPlaces] = useState(true);
+  const [loadError, setLoadError] = useState(false);
 
-  useEffect(() => {
-    fetchPlaces({ limit: 100 })
+  const loadPlaces = useCallback(() => {
+    setLoadingPlaces(true);
+    setLoadError(false);
+    return fetchPlaces({ limit: 200 })
       .then((res) => setPlaces(res.data))
-      .catch(console.error)
+      .catch(() => setLoadError(true))
       .finally(() => setLoadingPlaces(false));
   }, []);
+
+  useEffect(() => {
+    loadPlaces();
+  }, [loadPlaces]);
 
   const initialRegion = useMemo(() => {
     if (location) {
@@ -59,6 +66,15 @@ export default function MapScreen({ navigation }) {
           <Text style={styles.title}>{t("map.title")}</Text>
         </View>
         <Text style={styles.subtitle}>{t("map.subtitle")}</Text>
+        {loadError && (
+          <View style={styles.errorRow}>
+            <Ionicons name="cloud-offline-outline" size={14} color={theme.colors.danger} />
+            <Text style={styles.errorText}>{t("map.load_error")}</Text>
+            <TouchableOpacity onPress={loadPlaces} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+              <Text style={styles.retryText}>{t("home.retry")}</Text>
+            </TouchableOpacity>
+          </View>
+        )}
         {locationError && (
           <View style={styles.errorRow}>
             <Ionicons name="location-outline" size={14} color={theme.colors.danger} />
@@ -81,4 +97,5 @@ const styles = StyleSheet.create({
   subtitle: { fontSize: 13, color: theme.colors.textLight, marginBottom: 12, lineHeight: 20 },
   errorRow: { flexDirection: "row", alignItems: "center", gap: 6, marginBottom: 10 },
   errorText: { color: theme.colors.danger, fontSize: 13, fontWeight: "600", flex: 1 },
+  retryText: { color: theme.colors.primary, fontSize: 13, fontWeight: "700" },
 });
